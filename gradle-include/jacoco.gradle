@@ -1,0 +1,8 @@
+//Modifications for jacoco plugin
+apply plugin: 'java'
+apply plugin: 'jacoco'
+
+jacoco {
+	toolVersion = "0.7.2.201409121644"
+    reportsDir = file("${project.reporting.baseDir}/jacoco")
+}

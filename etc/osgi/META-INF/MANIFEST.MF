@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Application-Name: nortal-commons
+Application-Description: nortal-commons-deployment-package
+Application-Version: 1.1
+Application-SymbolicName: nortal-commons
+
