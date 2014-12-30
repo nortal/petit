@@ -29,11 +29,6 @@ import javax.persistence.Transient;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.nortal.petit.beanmapper.BeanMapping;
-import com.nortal.petit.beanmapper.BeanMappingFactoryImpl;
-import com.nortal.petit.beanmapper.BeanMappings;
-import com.nortal.petit.beanmapper.Property;
-
 /**
  * @author Aleksei Lissitsin
  * 
@@ -41,7 +36,8 @@ import com.nortal.petit.beanmapper.Property;
 public class BeanMappingFactoryTest {
 
     @Test
-    public void testCachePropertyAnnotationsProperty_false() {
+    public void testCachePropertyAnnotationsProperty() {
+        System.setProperty("com.nortal.persistence.useAdditionalConfiguration", "false");
         BeanMappingFactoryImpl bmf = new BeanMappingFactoryImpl();
         BeanMapping<Bean> bean1 = bmf.create(Bean.class);
         Property<Bean, Object> prop1 = bean1.props().get("idField");
@@ -85,15 +81,17 @@ public class BeanMappingFactoryTest {
         @Embedded
         @AttributeOverride(name = "foo", column = @Column(name = "over_foo"))
         @AttributeOverrides({ @AttributeOverride(name = "foo", column = @Column(name = "overs_foo")),
-                @AttributeOverride(name = "foo2", column = @Column(name = "overs_foo")) })
+            @AttributeOverride(name = "foo2", column = @Column(name = "overs_foo")) })
         @Column(name = "em")
         private EmBean emb;
 
+        @Override
         @Column(name = "g_id_field")
         public Long getIdField() {
             return idField;
         }
 
+        @Override
         public void setIdField(Long idField) {
             this.idField = idField;
         }
