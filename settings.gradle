@@ -1,0 +1,20 @@
+rootProject.name = 'petit'
+include ':beanmapper', ':converter', ':core', ':orm'
+
+project(':beanmapper').projectDir = "$rootDir/modules/beanmapper" as File
+project(':converter').projectDir = "$rootDir/modules/converter" as File
+project(':orm').projectDir = "$rootDir/modules/orm" as File
+project(':core').projectDir = "$rootDir/modules/core" as File
+
+//Prefix added to module names
+ext.projectPrefix = "petit"
+
+rootProject.children.each {
+	it.name = ext.projectPrefix + "-" + it.name
+
+	//All modules have hierarchical names (prefix + parent name + submodule name)
+	it.children.each {
+		it.name = ext.projectPrefix + "-" + it.parent.name + "-" + it.name
+	}
+}
+

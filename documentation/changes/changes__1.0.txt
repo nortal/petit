@@ -1,0 +1,5 @@
+Petit release changes:
+
+1. @Table annotation field schema is not considered and prepended to the table name.
+2. Set useAdditionalConfiguration default value to true. Additional property information such as annotation and collection type will be added automatically
+

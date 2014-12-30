@@ -1,0 +1,40 @@
+ext {
+  reportsDir = file("build/reports")
+  compileDeps = "compileDeps"
+}
+
+['', 'Full'].each { def suffix ->
+    tasks.create(name:"dependenciesDot$suffix"){
+    def compileDepsDot = file("$reportsDir/${compileDeps}${suffix}.dot")
+    inputs.files subprojects.configurations.compile
+    outputs.files compileDepsDot
+    doFirst {
+        reportsDir.mkdirs()
+    }
+    doLast {
+      Set deps = [] as Set
+      Set subs = [] as Set
+      subprojects.each {subproject ->
+        if (new File(subproject.projectDir, "src").exists()){
+          subs.add "\"$subproject.name\" [color = teal, style = bold, fontsize = 16];"
+        }
+        subproject.configurations.compile.dependencies.each {dependency ->
+          if(suffix == 'Full' || dependency instanceof ProjectDependency) {
+            deps.add "\"$subproject.name\" -> \"$dependency.name\";"
+          }
+        }
+      }
+      compileDepsDot.write([
+        "digraph compile{",
+        *(subs as List),
+        *(deps as List),
+        "}"
+      ].join(System.getProperty("line.separator")))
+    }
+  }
+
+  tasks.create(name:"dependenciesSvg$suffix", type: Exec, dependsOn: "dependenciesDot$suffix") {
+    workingDir reportsDir
+    commandLine "dot", "-Tsvg", "${compileDeps}${suffix}.dot", "-o", "${compileDeps}${suffix}.dot.svg"
+  }
+}

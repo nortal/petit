@@ -1,0 +1,8 @@
+ext.artifactId = 'converter'
+
+dependencies {
+	compile project(":petit-core")
+}
+
+
+
