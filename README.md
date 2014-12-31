@@ -1,5 +1,6 @@
 Petit
 =====
+[![Build Status](https://travis-ci.org/nortal/petit.svg?branch=master)](https://travis-ci.org/nortal/petit)
 
 Petit is a light-weight object-relational mapping framework with a goal to help developers write maintainable database queries. Unlike Hibernate, which aims to be a framework for mapping the object-oriented domain model to traditional relational database, Petit focuses on single model-table mapping, persistence and queries.
 Petit builds upon Spring Framework's JDBC abstraction framework relieving the developer from writing SQL in Java code, direct resultset handling and object conversion. For persistence Petit uses <i>Plain Old Java Objects</i> (POJOs) that are enhanced with standard JPA annotations.
