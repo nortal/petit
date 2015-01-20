@@ -35,143 +35,165 @@ import com.nortal.petit.orm.statement.clause.WherePart;
  * @created 21.05.2013
  */
 public class RelationMapper<T, R> implements RelationInfo<T, R> {
-    private BeanMapping<T> targetMapper;
-    private BeanMapping<R> relationMapper;
-    private Class<R> relationClass;
-    private Property<T, Object> targetProperty;
-    private Function<T, Object> targetId;
-    private Property<R, Object> relationProperty;
-    private Function<R, Object> relationId;
-    private Method associateMethod;
-    private WherePart where;
+	private BeanMapping<T> targetMapper;
+	private BeanMapping<R> relationMapper;
+	private Class<R> relationClass;
+	private Property<T, Object> targetProperty;
+	private Function<T, Object> targetId;
+	private Property<R, Object> relationProperty;
+	private Function<R, Object> relationId;
+	private Method associateMethod;
+	private WherePart where;
 
-    public RelationMapper(Class<T> target, Class<R> relation, String targetProperty, String relationProperty,
-            WherePart where) {
-        this(target, relation, targetProperty, relationProperty, null, where);
-    }
+	public RelationMapper(Class<T> target, Class<R> relation,
+			String targetProperty, String relationProperty, WherePart where) {
+		this(target, relation, targetProperty, relationProperty, null, where);
+	}
 
-    public RelationMapper(Class<T> target, Class<R> relation, String targetProperty, String relationProperty,
-            String targetMapping, WherePart where) {
-        Assert.notNull(target, "RelationMapper.construct: target is mandatory");
-        Assert.notNull(relation, "RelationMapper.construct: relation is mandatory");
-        Assert.isTrue(StringUtils.isNotEmpty(targetProperty) || StringUtils.isNotEmpty(relationProperty),
-                "RelationMapper.construct: targetProperty or relationProperty is mandatory");
+	public RelationMapper(Class<T> target, Class<R> relation,
+			String targetProperty, String relationProperty,
+			String targetMapping, WherePart where) {
+		Assert.notNull(target, "RelationMapper.construct: target is mandatory");
+		Assert.notNull(relation,
+				"RelationMapper.construct: relation is mandatory");
+		Assert.isTrue(
+				StringUtils.isNotEmpty(targetProperty)
+						|| StringUtils.isNotEmpty(relationProperty),
+				"RelationMapper.construct: targetProperty or relationProperty is mandatory");
 
-        this.relationClass = relation;
+		this.relationClass = relation;
 
-        this.targetMapper = BeanMappings.get(target);
-        this.relationMapper = BeanMappings.get(relation);
+		this.targetMapper = BeanMappings.get(target);
+		this.relationMapper = BeanMappings.get(relation);
 
-        // Init target mapping property
-        if (StringUtils.isEmpty(targetProperty)) {
-            this.targetProperty = targetMapper.id();
-        } else {
-            this.targetProperty = targetMapper.props().get(targetProperty);
-        }
-        Assert.notNull(this.targetProperty, "RelationMapper.construct: targetProperty is mandatory");
+		// Init target mapping property
+		if (StringUtils.isEmpty(targetProperty)) {
+			this.targetProperty = targetMapper.id();
+		} else {
+			this.targetProperty = targetMapper.props().get(targetProperty);
+		}
+		Assert.notNull(this.targetProperty,
+				"RelationMapper.construct: targetProperty is mandatory");
 
-        targetId = new PropertyFunction<T, Object>(this.targetProperty);
+		targetId = new PropertyFunction<T, Object>(this.targetProperty);
 
-        // Init target mapping property
-        if (StringUtils.isEmpty(relationProperty)) {
-            this.relationProperty = relationMapper.id();
-        } else {
-            this.relationProperty = relationMapper.props().get(relationProperty);
-        }
-        Assert.notNull(this.relationProperty, "RelationMapper.construct: relationProperty is mandatory");
+		// Init target mapping property
+		if (StringUtils.isEmpty(relationProperty)) {
+			this.relationProperty = relationMapper.id();
+		} else {
+			this.relationProperty = relationMapper.props()
+					.get(relationProperty);
+		}
+		Assert.notNull(this.relationProperty,
+				"RelationMapper.construct: relationProperty is mandatory");
 
-        relationId = new PropertyFunction<R, Object>(this.relationProperty);
+		relationId = new PropertyFunction<R, Object>(this.relationProperty);
 
-        if (StringUtils.isNotEmpty(targetMapping)) {
-            PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(target, targetMapping);
-            this.associateMethod = pd.getWriteMethod();
-        }
+		if (StringUtils.isNotEmpty(targetMapping)) {
+			PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(target,
+					targetMapping);
+			this.associateMethod = pd.getWriteMethod();
+		}
 
-        // Mapping conditions
-        this.where = where;
-    }
+		// Mapping conditions
+		this.where = where;
+	}
 
-    public WherePart getWhere() {
-        return where;
-    }
+	public WherePart getWhere() {
+		return where;
+	}
 
-    public static <T, R> RelationMapper<T, R> oneToMany(Class<T> target, Class<R> relation, String mappedBy,
-            String targetMapping, WherePart where) {
-        return oneToMany(target, relation, null, mappedBy, targetMapping, where);
-    }
+	public static <T, R> RelationMapper<T, R> oneToMany(Class<T> target,
+			Class<R> relation, String mappedBy, String targetMapping,
+			WherePart where) {
+		return oneToMany(target, relation, null, mappedBy, targetMapping, where);
+	}
 
-    public static <T, R> RelationMapper<T, R> oneToMany(Class<T> target, Class<R> relation, String targetProperty,
-            String relationProperty, String targetMapping, WherePart where) {
-        return new RelationMapper<T, R>(target, relation, targetProperty, relationProperty, targetMapping, where);
-    }
+	public static <T, R> RelationMapper<T, R> oneToMany(Class<T> target,
+			Class<R> relation, String targetProperty, String relationProperty,
+			String targetMapping, WherePart where) {
+		return new RelationMapper<T, R>(target, relation, targetProperty,
+				relationProperty, targetMapping, where);
+	}
 
-    public static <T, R> RelationMapper<T, R> manyToOne(Class<T> target, Class<R> relation, String mappedBy,
-            String targetMapping, WherePart where) {
-        return manyToOne(target, relation, mappedBy, null, targetMapping, where);
-    }
+	public static <T, R> RelationMapper<T, R> manyToOne(Class<T> target,
+			Class<R> relation, String mappedBy, String targetMapping,
+			WherePart where) {
+		return manyToOne(target, relation, mappedBy, null, targetMapping, where);
+	}
 
-    public static <T, R> RelationMapper<T, R> manyToOne(Class<T> target, Class<R> relation, String targetProperty,
-            String relationProperty, String targetMapping, WherePart where) {
-        return new RelationMapper<T, R>(target, relation, targetProperty, relationProperty, targetMapping, where);
-    }
+	public static <T, R> RelationMapper<T, R> manyToOne(Class<T> target,
+			Class<R> relation, String targetProperty, String relationProperty,
+			String targetMapping, WherePart where) {
+		return new RelationMapper<T, R>(target, relation, targetProperty,
+				relationProperty, targetMapping, where);
+	}
 
-    public static <T, R> RelationMapper<T, R> oneToOne(Class<T> target, Class<R> relation, String mappedBy,
-            String targetMapping, WherePart where) {
-        return manyToOne(target, relation, mappedBy, null, targetMapping, where);
-    }
+	public static <T, R> RelationMapper<T, R> oneToOne(Class<T> target,
+			Class<R> relation, String mappedBy, String targetMapping,
+			WherePart where) {
+		return manyToOne(target, relation, mappedBy, null, targetMapping, where);
+	}
 
-    public static <T, R> RelationMapper<T, R> oneToOne(Class<T> target, Class<R> relation, String targetProperty,
-            String relationProperty, String targetMapping, WherePart where) {
-        return new RelationMapper<T, R>(target, relation, targetProperty, relationProperty, targetMapping, where);
-    }
+	public static <T, R> RelationMapper<T, R> oneToOne(Class<T> target,
+			Class<R> relation, String targetProperty, String relationProperty,
+			String targetMapping, WherePart where) {
+		return new RelationMapper<T, R>(target, relation, targetProperty,
+				relationProperty, targetMapping, where);
+	}
 
-    @Override
-    public Function<T, Object> targetId() {
-        return targetId;
-    }
+	@Override
+	public Function<T, Object> targetId() {
+		return targetId;
+	}
 
-    @Override
-    public Function<R, Object> relationId() {
-        return relationId;
-    }
+	@Override
+	public Function<R, Object> relationId() {
+		return relationId;
+	}
 
-    public Class<R> getRelationClass() {
-        return relationClass;
-    }
+	public Class<R> getRelationClass() {
+		return relationClass;
+	}
 
-    public String getRelationProperty() {
-        return relationProperty.name();
-    }
+	public String getRelationProperty() {
+		return relationProperty.name();
+	}
 
-    @Override
-    public void associate(T target, List<R> relation) {
-        if (associateMethod == null) {
-            throw new IllegalStateException(
-                    "RelationMapper.initRelation: targetMapping is mandatory when using default realtion initialization");
-        }
+	public String getTargetProperty() {
+		return targetProperty.name();
+	}
 
-        if (associateMethod.getParameterTypes().length != 1) {
-            throw new IllegalStateException(
-                    "RelationMapper.initRelation: no proper realtion injection method found for target="
-                            + targetMapper.table());
-        }
+	@Override
+	public void associate(T target, List<R> relation) {
+		if (associateMethod == null) {
+			throw new IllegalStateException(
+					"RelationMapper.initRelation: targetMapping is mandatory when using default realtion initialization");
+		}
 
-        Class<?> propertyArgs = associateMethod.getParameterTypes()[0];
+		if (associateMethod.getParameterTypes().length != 1) {
+			throw new IllegalStateException(
+					"RelationMapper.initRelation: no proper realtion injection method found for target="
+							+ targetMapper.table());
+		}
 
-        try {
-            if (Collection.class.isAssignableFrom(propertyArgs)) {
-                associateMethod.invoke(target, relation);
-            } else {
-                if (relation.size() == 1) {
-                    associateMethod.invoke(target, relation.get(0));
-                } else {
-                    throw new IllegalStateException(
-                            "RelationMapper.initRelation: expected only one relation object for target="
-                                    + targetMapper.table() + " relation=" + relationMapper.table());
-                }
-            }
-        } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		Class<?> propertyArgs = associateMethod.getParameterTypes()[0];
+
+		try {
+			if (Collection.class.isAssignableFrom(propertyArgs)) {
+				associateMethod.invoke(target, relation);
+			} else {
+				if (relation.size() == 1) {
+					associateMethod.invoke(target, relation.get(0));
+				} else {
+					throw new IllegalStateException(
+							"RelationMapper.initRelation: expected only one relation object for target="
+									+ targetMapper.table() + " relation="
+									+ relationMapper.table());
+				}
+			}
+		} catch (ReflectiveOperationException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
