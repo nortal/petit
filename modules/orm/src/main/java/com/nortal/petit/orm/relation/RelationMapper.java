@@ -168,12 +168,12 @@ public class RelationMapper<T, R> implements RelationInfo<T, R> {
 	public void associate(T target, List<R> relation) {
 		if (associateMethod == null) {
 			throw new IllegalStateException(
-					"RelationMapper.initRelation: targetMapping is mandatory when using default realtion initialization");
+					"RelationMapper.initRelation: targetMapping is mandatory when using default relation initialization");
 		}
 
 		if (associateMethod.getParameterTypes().length != 1) {
 			throw new IllegalStateException(
-					"RelationMapper.initRelation: no proper realtion injection method found for target="
+					"RelationMapper.initRelation: no proper relation injection method found for target="
 							+ targetMapper.table());
 		}
 

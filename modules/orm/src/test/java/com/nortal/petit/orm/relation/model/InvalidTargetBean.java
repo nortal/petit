@@ -15,19 +15,21 @@
  */
 package com.nortal.petit.orm.relation.model;
 
+import java.util.List;
+
 import javax.persistence.Id;
 
 /**
- * Bean representing relations in RelationMapper tests
+ * Invalid target bean. Relations setter does not follow common setter pattern
  * 
  * @author Alrik Peets
  */
-public class RelationBean {
+public class InvalidTargetBean {
 
 	@Id
-	private Long id;
-	private Long targetBeanId;
-	private String relationDescription;
+	public Long id;
+	private String description;
+	private List<RelationBean> relations;
 
 	public Long getId() {
 		return id;
@@ -37,20 +39,26 @@ public class RelationBean {
 		this.id = id;
 	}
 
-	public Long getTargetBeanId() {
-		return targetBeanId;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setTargetBeanId(Long targetBeanId) {
-		this.targetBeanId = targetBeanId;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
-	public String getRelationDescription() {
-		return relationDescription;
+	public List<RelationBean> getRelations() {
+		return relations;
 	}
 
-	public void setRelationDescription(String relationDescription) {
-		this.relationDescription = relationDescription;
+	/**
+	 * We add only active relations
+	 * 
+	 * @param relations
+	 * @param activeOnly
+	 */
+	public void setRelations(List<RelationBean> relations, boolean activeOnly) {
+		this.relations = relations;
 	}
 
 }

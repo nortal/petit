@@ -5,9 +5,10 @@ dependencies {
 	compile project(":petit-converter")
 	compile group: 'com.google.guava', name: 'guava', version: guavaVersion
 
-	testCompile 'org.springframework:spring-test:3.2.1.RELEASE'
+	testCompile 'org.springframework:spring-test:' + springVersion
 	testCompile 'org.springframework:spring-expression:3.2.1.RELEASE'
-	testCompile 'org.easymock:easymock:3.1'
+	testCompile 'org.powermock:powermock-api-mockito:1.6.1'
+	testCompile 'org.powermock:powermock-module-junit4:1.6.1'
 	testCompile project(path: ":petit-beanmapper", configuration: "tests")
 }
 
