@@ -15,15 +15,13 @@
  */
 package com.nortal.petit.orm.relation;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
-import com.google.common.collect.Multimaps;
+import com.google.common.base.Function;
 
 /**
  * @author Aleksei Lissitsin
@@ -32,26 +30,47 @@ import com.google.common.collect.Multimaps;
 public class RelationUtil {
     public static <T, R> void loadRelations(Collection<T> targets, final RelationInfo<T, R> info,
             final RelationLoader<R> loader) {
-        // Filter out objects where targetId is NULL
-        ImmutableList<T> actualTargets = FluentIterable.<T> from(targets).filter(new Predicate<T>() {
-            @Override
-            public boolean apply(T input) {
-                return info.targetId().apply(input) != null;
-            }
-        }).toList();
+        Collection<T> actualTargets = filterActualTargets(targets, info);
         if (actualTargets == null || actualTargets.isEmpty()) {
             return;
         }
-        ImmutableListMultimap<Object, T> targetIndex = Multimaps.index(actualTargets, info.targetId());
+        Map<Object, List<T>> targetIndex = createIndexMap(actualTargets, info.targetId());
 
         List<R> relations = loader.loadRelations(targetIndex.keySet());
 
-        ImmutableListMultimap<Object, R> relIndex = Multimaps.index(relations, info.relationId());
+        Map<Object, List<R>> relIndex = createIndexMap(relations, info.relationId());
 
-        for (Map.Entry<Object, List<R>> e : Multimaps.asMap(relIndex).entrySet()) {
+        for (Map.Entry<Object, List<R>> e : relIndex.entrySet()) {
             for (T target : targetIndex.get(e.getKey())) {
                 info.associate(target, e.getValue());
             }
         }
+    }
+
+    private static <T, R> Collection<T> filterActualTargets(Collection<T> targets, RelationInfo<T, R> info) {
+        Collection<T> result = new ArrayList<>();
+
+        for (T target : targets) {
+            if (info.targetId().apply(target) != null) {
+                result.add(target);
+            }
+        }
+
+        return result;
+    }
+
+    private static <T> Map<Object, List<T>> createIndexMap(Collection<T> targets, Function<T, Object> indexFunc) {
+        Map<Object, List<T>> indexMap = new HashMap<>();
+
+        for (T target : targets) {
+            List<T> indexList = indexMap.get(indexFunc.apply(target));
+            if (indexList == null) {
+                indexList = new ArrayList<T>();
+                indexMap.put(indexFunc.apply(target), indexList);
+            }
+            indexList.add(target);
+        }
+
+        return indexMap;
     }
 }
