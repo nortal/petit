@@ -31,6 +31,11 @@ public class PropertyConfiguration {
     private List<Annotation> annotations;
     private Type[] collectionTypeArguments;
 
+    /**
+     * Returns all annotations associated with the property
+     * 
+     * @return
+     */
     public List<Annotation> getAnnotations() {
         if (annotations == null) {
             annotations = new ArrayList<Annotation>();
@@ -46,6 +51,11 @@ public class PropertyConfiguration {
         return BeanMappingReflectionUtils.getAnnotation(getAnnotations(), annotationType);
     }
 
+    /**
+     * If property is of {@link Collection} type returns the generic types of the Collection
+     * 
+     * @return
+     */
     public Type[] getCollectionTypeArguments() {
         return collectionTypeArguments;
     }

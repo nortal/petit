@@ -15,7 +15,9 @@
  */
 package com.nortal.petit.orm.relation;
 
+import static com.nortal.petit.orm.statement.clause.Where.like;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyCollectionOf;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -25,11 +27,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 
 import com.nortal.petit.orm.relation.fixture.RelationFixture;
 import com.nortal.petit.orm.relation.model.RelationBean;
 import com.nortal.petit.orm.relation.model.TargetBean;
+import com.nortal.petit.orm.statement.clause.SimpleWherePart;
+import com.nortal.petit.orm.statement.clause.Where;
+import com.nortal.petit.orm.statement.clause.WherePart;
 
 public class RelationLoaderTest {
 
@@ -63,6 +69,31 @@ public class RelationLoaderTest {
 
     }
 
+    /**
+     * TODO: rewrite these tests when we can use H2 or some other in-memory databases
+     * Currently the OutputtingTestRelationLoader class contains almost the same logic are real RelationLoader in action
+     */
+    @Test
+    public void test__loadRelationsCustomWhere() {
+        TargetBean tb = RelationFixture.getDefaultTargetBean();
+        List<TargetBean> tbs = new ArrayList<>();
+        tbs.add(tb);
+
+        WherePart additionalWhere = Where.eq("id", 2L).and(like("description", "default"));
+
+        RelationMapper<TargetBean, RelationBean> rm2 = RelationMapper.oneToMany(TargetBean.class, RelationBean.class, "targetBeanId", "relations", additionalWhere);
+        String rm2Additional = rm2.getWhere().toString();
+        
+        OutputtingTestRelationLoader outputRL = new OutputtingTestRelationLoader(rm2);
+        RelationUtil.loadRelations(tbs, rm2, outputRL);
+
+        assertThat(stripBrackets(outputRL.getWhereSql()), containsString(stripBrackets(rm2Additional)));
+    }
+
+    private String stripBrackets(String input) {
+        return input.replace("(", "").replace(")", "");
+    }
+    
     private static class TestRelationLoader implements RelationLoader<RelationBean> {
 
         @Override
@@ -72,4 +103,28 @@ public class RelationLoaderTest {
 
     }
 
+    private static class OutputtingTestRelationLoader implements RelationLoader<RelationBean> {
+        private RelationMapper relationMapper;
+        private String whereSql;
+        
+        public OutputtingTestRelationLoader(RelationMapper relationMapper) {
+            this.relationMapper = relationMapper;
+        }
+        
+        public String getWhereSql() {
+            return whereSql;
+        }
+        
+        @Override
+        public List<RelationBean> loadRelations(Collection<Object> targetIds) {
+            WherePart where = Where.eq(relationMapper.getRelationProperty(), targetIds);
+            if (relationMapper.getWhere() != null) {
+                where = where.and(relationMapper.getWhere());
+            }
+            whereSql = where.toString();
+            return RelationFixture.getDefaultRelations(null);
+        }
+        
+    }
+    
 }
