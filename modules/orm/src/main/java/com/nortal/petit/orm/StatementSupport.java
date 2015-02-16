@@ -40,8 +40,8 @@ import com.nortal.petit.orm.statement.LoadStatement;
 import com.nortal.petit.orm.statement.QueryStatement;
 import com.nortal.petit.orm.statement.StatementBuilder;
 import com.nortal.petit.orm.statement.UpdateStatement;
-import com.nortal.petit.orm.statement.clause.SimpleWherePart;
 import com.nortal.petit.orm.statement.clause.Where;
+import com.nortal.petit.orm.statement.clause.WherePart;
 
 /**
  * Support class for statement APIs.
@@ -378,9 +378,9 @@ public class StatementSupport {
         return new RelationLoader<R>() {
             @Override
             public List<R> loadRelations(Collection<Object> targetIds) {
-                SimpleWherePart where = Where.eq(relationMapper.getRelationProperty(), targetIds);
+                WherePart where = Where.eq(relationMapper.getRelationProperty(), targetIds);
                 if (relationMapper.getWhere() != null) {
-                    where.and(relationMapper.getWhere());
+                    where = where.and(relationMapper.getWhere());
                 }
                 return loadStm(relationMapper.getRelationClass()).where(where).all();
             }
