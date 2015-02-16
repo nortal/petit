@@ -1,0 +1,4 @@
+Fixed issues:
+
+#2 "Cannot add additional search clauses for RelationLoader"
+#3 "RelationUtil returns found relations in an immutable collection"
