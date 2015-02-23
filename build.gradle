@@ -81,7 +81,8 @@ subprojects {
     
     // no point building empty jars for modules with no sources
     jar.onlyIf { project.file('src/main').exists() }
-    jar.from project.file('src/main/java')
+    // Sources will be published as independant JAR
+    //jar.from project.file('src/main/java')
 }//END OF subprojects
 
 //jar.doFirst {

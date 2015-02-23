@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
@@ -82,6 +83,12 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
         super.setSql(getStatementBuilder().getLoad());
     }
 
+    /**
+     * Return the first item from matching list. 
+     * Returns <code>null</code> if no result. 
+     * 
+     * @return
+     */
     public B first() {
         try {
             prepare();
@@ -92,12 +99,28 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
         }
     }
 
+    /**
+     * Query for single object. Will return <code>null</code> if not element found.
+     * Throws {@link IncorrectResultSizeDataAccessException} if more than one element returned.
+     * 
+     * @return
+     */
     public B single() {
         try {
             return getJdbcTemplate().queryForObject(getSql(), getMapper(), getParams(null));
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+    
+    /**
+     * Query for single object.
+     * Throws {@link IncorrectResultSizeDataAccessException} if not exactly one element returned.
+     * 
+     * @return
+     */
+    public B require() {
+        return getJdbcTemplate().queryForObject(getSql(),  getMapper(), getParams(null));
     }
 
     public List<B> range(int start, int limit) {
