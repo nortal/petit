@@ -1,0 +1,6 @@
+Changes in version 1.0.2
+
+	* Added support for RequireSingle queries. Similar to LoadStatement single and first method, you can now call require, which will throw a runtimeexception if not exactly on element is returned
+	* Fixed Update- and DeleteStatement implied SQL where part generation. If a bean used in update or delete statement has @Id annotation, Petit will automatically assume the operation will be performed by ID. However when specifing a custom Where clause this behaviour produced weird side-effects. Now Petit will automatically add the ID claus only when no custom Where clause has been specified.
+	
+
