@@ -54,5 +54,5 @@ public class LoadStatementTest {
         
         LoadStatement<LoadStmtBean> load = load(jdbcTemplate, LoadStmtBean.class);
     }
-    
+
 }

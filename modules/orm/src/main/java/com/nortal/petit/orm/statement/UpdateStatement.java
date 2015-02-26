@@ -35,10 +35,6 @@ public class UpdateStatement<B> extends BeansStatement<B, UpdateStatement<B>> {
         super.init(jdbcTemplate, statementBuilder, (Class<B>) beans[0].getClass());
 
         setBy(StatementUtil.toStringArray(getWritableProps(getMapping())));
-
-        if (getMapping().id() != null) {
-            whereBy(getMapping().id().name());
-        }
     }
 
     public UpdateStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, Class<B> beanClass) {
@@ -48,6 +44,13 @@ public class UpdateStatement<B> extends BeansStatement<B, UpdateStatement<B>> {
 
     @Override
     protected void prepare() {
+        //If no manual where statement is added, add ID mapping if ID present.
+        if (getStatementBuilder().getWhereClause() == null) {
+            if (getMapping().id() != null) {
+                whereBy(getMapping().id().name());
+            }
+        }
+        
         super.prepare();
         prepareSet();
         setSql(getStatementBuilder().getUpdate());

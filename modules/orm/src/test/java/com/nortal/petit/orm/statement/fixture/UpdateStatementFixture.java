@@ -15,16 +15,20 @@
  */
 package com.nortal.petit.orm.statement.fixture;
 
+import javax.persistence.Id;
 import javax.persistence.Table;
 
-public class LoadStatementFixture {
 
-    public static LoadStmtBean getDefaultBean() {
-        return new LoadStmtBean();
+public class UpdateStatementFixture {
+
+    public static UpdateStmtBean getDefaultBean() {
+        return new UpdateStmtBean();
     }
     
-    @Table(name = "load_tbl")
-    public static class LoadStmtBean {
+    
+    @Table(name = "update_tbl")
+    public static class UpdateStmtBean {
+        @Id
         private Long id;
         private String description;
         
@@ -42,4 +46,5 @@ public class LoadStatementFixture {
             this.description = description;
         }
     }
+    
 }
