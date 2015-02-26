@@ -126,14 +126,14 @@ public abstract class BeansStatement<B, S extends BeansStatement<B, S>> extends 
         prepare();
 
         StringBuilder sb = new StringBuilder();
+        MappingParamFunction<B> function = new MappingParamFunction<B>(getMapping());
         if (!CollectionUtils.isEmpty(getBeans())) {
-            MappingParamFunction<B> function = new MappingParamFunction<B>(getMapping());
             for (B bean : getBeans()) {
                 function.setBean(bean);
                 sb.append(super.getSqlWithParams(function)).append("\n");
             }
         } else {
-            sb.append(super.getSqlWithParams()).append("\n");
+            sb.append(super.getSqlWithParams(function)).append("\n");
         }
         return sb.toString();
     }

@@ -15,8 +15,7 @@
  */
 package com.nortal.petit.orm.statement.clause;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Functions;
@@ -55,4 +54,13 @@ public class CompositeWherePartTest {
         myAssert(sql2, Where.eq("bla", 2).and().gt("fla", "df").range("rla", 3, 4).like("lla", "foo"));
     }
 
+    @Test
+    public void test_ilike() {
+        String likeSql = "col1 LIKE ?";
+        String ilikeSql = "lower(col1) LIKE lower(?)";
+        
+        myAssert(likeSql, Where.like("col1", "val"));
+        myAssert(ilikeSql, Where.ilike("col1", "val"));
+    }
+    
 }

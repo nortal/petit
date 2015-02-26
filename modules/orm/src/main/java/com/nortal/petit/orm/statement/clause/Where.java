@@ -40,6 +40,10 @@ public class Where {
     public static SimpleWherePart like(String property, Object value) {
         return new SimpleWherePart(property, OperationEnum.LIKE, value);
     }
+    
+    public static SimpleWherePart ilike(String property, Object value) {
+        return new SimpleWherePart(property, OperationEnum.ILIKE, value);
+    }
 
     public static SimpleWherePart gt(String property, Object value) {
         return new SimpleWherePart(property, OperationEnum.GT, value);

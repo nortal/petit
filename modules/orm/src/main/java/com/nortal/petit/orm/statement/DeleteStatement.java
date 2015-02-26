@@ -35,11 +35,6 @@ public class DeleteStatement<B> extends BeansStatement<B, DeleteStatement<B>> {
 
         this.beans = Arrays.asList(beans);
         super.init(jdbcTemplate, statementBuilder, (Class<B>) beans[0].getClass());
-
-        // by default try to delete by primary key property if exists
-        if (getMapping().id() != null) {
-            whereBy(getMapping().id().name());
-        }
     }
 
     public DeleteStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, Class<B> beanClass) {
@@ -50,6 +45,13 @@ public class DeleteStatement<B> extends BeansStatement<B, DeleteStatement<B>> {
 
     @Override
     protected void prepare() {
+        if (getStatementBuilder().getWhereClause() == null) {
+            // by default try to delete by primary key property if exists
+            if (getMapping().id() != null) {
+                whereBy(getMapping().id().name());
+            }
+        }
+        
         getStatementBuilder().setPropertyNameMapper(getPropertyNameMapper(true));
         setSql(getStatementBuilder().getDelete());
     }

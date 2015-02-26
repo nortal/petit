@@ -54,6 +54,12 @@ public enum OperationEnum {
         }
     },
     LIKE("LIKE"), GT(">"), LT("<"), GTE(">="), LTE("<="), //
+    ILIKE("LIKE") {
+        @Override
+        public String getOperationCondition(String columnName) {
+            return "lower(" + columnName + ") LIKE lower(?)"; 
+        }
+    },
     RANGE("RANGE") {
         @Override
         public String getOperationCondition(String columnName) {
