@@ -7,3 +7,6 @@ notifications:
   email:
     on_success: change
     on_failure: change
+
+after_success: 
+  - ./gradlew uploadArchives -Pusername=$BINTRAY_USERNAME -Ppassword=$BINTRAY_API_KEY
