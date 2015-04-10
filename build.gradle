@@ -52,7 +52,6 @@ subprojects {
 
     repositories {
         mavenCentral()
-        maven { url "http://maven2.webmedia.ee" }
     }
 
     configurations { deployerJars }
