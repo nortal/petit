@@ -31,11 +31,12 @@ uploadArchives {
   if (!project.hasProperty('password')) {
     ext.password = ''
   }
+  
   repositories {
     mavenDeployer {
       configuration = configurations.deployerJars
       pom.artifactId = project.name
-      repository(url: "scp://maven2.webmedia.int/var/www/html/") {
+      repository(url: "https://api.bintray.com/maven/nortal/petit/"+project.name) {
         authentication(userName: username, password: password)
       }
     }
