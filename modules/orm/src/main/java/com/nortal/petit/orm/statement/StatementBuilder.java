@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.nortal.petit.orm.statement.interceptor.StatementInterceptor;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Function;
@@ -66,6 +67,8 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
     private SqlPart where;
 
     private Function<String, String> propertyNameMapper = Functions.<String> identity();
+
+    private StatementInterceptor interceptor;
 
     public void setPropertyNameMapper(Function<String, String> propertyNameMapper) {
         this.propertyNameMapper = propertyNameMapper;
@@ -331,5 +334,13 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
             }
         }
         return res;
+    }
+
+    public void setInterceptor(StatementInterceptor interceptor) {
+        this.interceptor = interceptor;
+    }
+
+    public StatementInterceptor getInterceptor() {
+        return this.interceptor;
     }
 }
