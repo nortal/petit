@@ -43,10 +43,6 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
         WhereClause<LoadStatement<B>> {
     public LoadStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, Class<B> beanClass) {
         super.init(jdbcTemplate, statementBuilder, beanClass);
-        statementBuilder.setPropertyNameMapper(getPropertyNameMapper(true));
-
-        // by default select by all properties
-        getStatementBuilder().select(StatementUtil.toStringArray(getMapping().props().keySet()));
     }
 
     @Override
@@ -80,6 +76,11 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
 
     @Override
     protected void prepare() {
+        getStatementBuilder().setPropertyNameMapper(getMapping().getPropertyNameMapper(true));
+        // If no specific select is set select all props
+        if (!getStatementBuilder().isSetSelect()) {
+            getStatementBuilder().select(StatementUtil.toStringArray(getMapping().props().keySet()));
+        }
         super.setSql(getStatementBuilder().getLoad());
     }
 
@@ -107,6 +108,7 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
      */
     public B single() {
         try {
+            prepare();
             return getJdbcTemplate().queryForObject(getSql(), getMapper(), getParams(null));
         } catch (EmptyResultDataAccessException e) {
             return null;
@@ -120,6 +122,7 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
      * @return
      */
     public B require() {
+        prepare();
         return getJdbcTemplate().queryForObject(getSql(),  getMapper(), getParams(null));
     }
 

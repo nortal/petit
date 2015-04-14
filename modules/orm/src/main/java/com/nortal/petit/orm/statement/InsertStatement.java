@@ -56,7 +56,6 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
     public InsertStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, B... beans) {
         Assert.isTrue(ArrayUtils.isNotEmpty(beans), "InsertStatement.construct: beans are mandatory");
         init(jdbcTemplate, statementBuilder, (Class<B>) beans[0].getClass());
-        statementBuilder.setPropertyNameMapper(getPropertyNameMapper(false));
 
         this.beans = Arrays.asList(beans);
         // by default insert all properties to db
@@ -65,6 +64,7 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
 
     @Override
     protected void prepare() {
+        getStatementBuilder().setPropertyNameMapper(getPropertyNameMapper(false));
         prepareSet();
         setSql(getStatementBuilder().getInsert());
     }

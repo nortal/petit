@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.nortal.petit.orm.statement.interceptor.StatementInterceptor;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Function;
@@ -117,6 +118,10 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
         return this;
     }
 
+    public boolean isSetSelect() {
+        return select != null && !select.isEmpty();
+    }
+    
     public String getSelectClause() {
         StringBuilder clause = new StringBuilder("SELECT ");
         if (select != null && !select.isEmpty()) {

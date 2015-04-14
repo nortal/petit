@@ -26,6 +26,7 @@ public abstract class PropertySupport<B, T> implements Property<B, T> {
     protected Class<T> type;
     protected String column;
     protected boolean readOnly = false;
+    protected boolean idProperty = false;
     protected PropertyConfiguration configuration;
 
     public Class<T> type() {
@@ -53,5 +54,14 @@ public abstract class PropertySupport<B, T> implements Property<B, T> {
             configuration = new PropertyConfiguration();
         }
         return configuration;
+    }
+    
+    @Override
+    public boolean isIdProperty() {
+        return idProperty;
+    }
+    
+    public void setIdProperty(boolean isIdProperty) {
+        this.idProperty = isIdProperty;
     }
 }

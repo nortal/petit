@@ -9,6 +9,8 @@ dependencies {
 	testCompile 'org.springframework:spring-expression:3.2.1.RELEASE'
 	testCompile 'org.powermock:powermock-api-mockito:1.6.1'
 	testCompile 'org.powermock:powermock-module-junit4:1.6.1'
+	testCompile 'com.mockrunner:mockrunner-core:1.0.6'
+	testCompile 'com.mockrunner:mockrunner-jdbc:1.0.6'
 	testCompile project(path: ":petit-beanmapper", configuration: "tests")
 }
 

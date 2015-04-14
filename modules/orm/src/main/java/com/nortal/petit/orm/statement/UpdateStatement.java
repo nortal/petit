@@ -74,9 +74,8 @@ public class UpdateStatement<B> extends BeansStatement<B, UpdateStatement<B>> {
             paramFunction.setBean(bean);
             List<String> columns = Lists.transform(setBy, getPropertyNameMapper(true));
             List<Object> params = Lists.transform(setBy, paramFunction);
-            Object id = mapping.id().read(bean);
+            Object id = mapping.id() != null ? mapping.id().read(bean) : null;
             getStatementBuilder().getInterceptor().afterUpdate(mapping.table(), id, params.toArray(), null, columns.toArray(new String[columns.size()]));
-            System.out.println(bean);
         }
     }
 

@@ -15,7 +15,7 @@
  */
 package com.nortal.petit.beanmapper;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.springframework.util.Assert;
@@ -23,24 +23,22 @@ import org.springframework.util.Assert;
 import com.google.common.base.Function;
 
 /**
- * A beanmapping restricted to a set of properties.
+ * Extended BeanMapping. Useful when adding custom fields (for example fields with Transient annotation)
+ * to the default mapping.
  * 
- * @author Aleksei Lissitsin
- * 
+ * @author Alrik Peets
+ *
+ * @param <B>
  */
-public class RestrictedBeanMapping<B> implements BeanMapping<B> {
+public class ExtendedBeanMapping<B> implements BeanMapping<B> {
 
     private BeanMapping<B> beanMapping;
-    private Map<String, Property<B, Object>> propMap = new HashMap<String, Property<B, Object>>();
-
-    public RestrictedBeanMapping(BeanMapping<B> beanMapping, String... props) {
+    private Map<String, Property<B, Object>> extendedProps = new LinkedHashMap<String, Property<B, Object>>();
+    
+    public ExtendedBeanMapping(BeanMapping<B> beanMapping) {
         this.beanMapping = beanMapping;
-        Map<String, Property<B, Object>> origMap = beanMapping.props();
-        for (String prop : props) {
-            propMap.put(prop, origMap.get(prop));
-        }
     }
-
+    
     @Override
     public B instance() {
         return beanMapping.instance();
@@ -53,7 +51,12 @@ public class RestrictedBeanMapping<B> implements BeanMapping<B> {
 
     @Override
     public Map<String, Property<B, Object>> props() {
-        return propMap;
+        Map<String, Property<B, Object>> props = new LinkedHashMap<String, Property<B, Object>>(beanMapping.props());
+        for (String key : extendedProps.keySet()) {
+            Property<B, Object> property = extendedProps.get(key);
+            props.put(key, property);
+        }
+        return props;
     }
 
     @Override
@@ -61,6 +64,10 @@ public class RestrictedBeanMapping<B> implements BeanMapping<B> {
         return beanMapping.id();
     }
 
+    public void addExtendedProperty(String property, String columnName) {
+        BeanMappingUtils.initExtendedProperty(extendedProps, property, type(), columnName);
+    }
+    
     @Override
     public Function<String, String> getPropertyNameMapper(final boolean includeReadOnly) {
         return new Function<String, String>() {
@@ -69,7 +76,7 @@ public class RestrictedBeanMapping<B> implements BeanMapping<B> {
             }
         };
     }
-    
+
     private String getColumn(String name, boolean includeReadOnly) {
         Property<B, Object> p = props().get(name);
         if (p == null) {

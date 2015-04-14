@@ -27,6 +27,7 @@ import com.nortal.petit.orm.DefaultResultSetReader;
 
 /**
  * @author Lauri Lättemäe (lauri.lattemae@nortal.com)
+ * @author Alrik Peets
  * @created 30.04.2013
  * @param <B>
  */
@@ -34,6 +35,7 @@ public abstract class SimpleStatement<B> {
 
     private JdbcOperations jdbcTemplate;
     protected BeanMapping<B> mapping;
+    private BeanMapper<B> beanMapper;
     private StatementBuilder statementBuilder;
     private String sql;
 
@@ -58,11 +60,14 @@ public abstract class SimpleStatement<B> {
     }
 
     public BeanMapping<B> getMapping() {
-        return mapping;
+        return getMapper().mapping();
     }
 
     public BeanMapper<B> getMapper() {
-        return new BeanMapper<B>(getMapping(), DefaultResultSetReader.instance());
+        if (beanMapper == null) {
+            beanMapper = new BeanMapper<B>(mapping, DefaultResultSetReader.instance());
+        }
+        return beanMapper;
     }
 
     protected void setSql(String sql) {
@@ -117,22 +122,18 @@ public abstract class SimpleStatement<B> {
 
     protected abstract StatementType getStatementType();
 
-    private String getColumn(String name, boolean includeReadOnly) {
-        Property<B, Object> p = getMapping().props().get(name);
-        if (p == null) {
-            Assert.notNull(p, "No property " + name + " found!");
-        }
-        if (includeReadOnly || !p.readOnly()) {
-            return p.column();
-        }
-        return null;
-    }
-
+//    private String getColumn(String name, boolean includeReadOnly) {
+//        Property<B, Object> p = getMapping().props().get(name);
+//        if (p == null) {
+//            Assert.notNull(p, "No property " + name + " found!");
+//        }
+//        if (includeReadOnly || !p.readOnly()) {
+//            return p.column();
+//        }
+//        return null;
+//    }
+//
     protected Function<String, String> getPropertyNameMapper(final boolean includeReadOnly) {
-        return new Function<String, String>() {
-            public String apply(String name) {
-                return getColumn(name, includeReadOnly);
-            }
-        };
+        return getMapper().mapping().getPropertyNameMapper(includeReadOnly);
     }
 }
