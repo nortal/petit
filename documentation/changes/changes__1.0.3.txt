@@ -1,0 +1,5 @@
+Changes in version 1.0.3
+
+* Merged interceptor support for Insert and Update statements. Look for StatementInterceptor and LoggingInterceptor classes
+* Implemented possibility to add custom mappings to BeanMapper. For additional information see (https://github.com/nortal/petit/issues/7)
+
