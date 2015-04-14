@@ -57,4 +57,5 @@ public class ReflectionProperty<B, T> extends PropertySupport<B, T> {
     private RuntimeException ex(Exception e) {
         return (e instanceof RuntimeException) ? (RuntimeException) e : new RuntimeException(e);
     }
+
 }

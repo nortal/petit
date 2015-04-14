@@ -35,6 +35,8 @@ public interface Property<B, T> {
     T read(B bean);
 
     boolean readOnly();
-
+    
+    boolean isIdProperty();
+    
     PropertyConfiguration getConfiguration();
 }

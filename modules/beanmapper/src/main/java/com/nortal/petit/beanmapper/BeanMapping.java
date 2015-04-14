@@ -17,6 +17,8 @@ package com.nortal.petit.beanmapper;
 
 import java.util.Map;
 
+import com.google.common.base.Function;
+
 /**
  * A mapping of a bean as a collection of properties.
  * 
@@ -24,6 +26,9 @@ import java.util.Map;
  * 
  */
 public interface BeanMapping<B> {
+    
+    public static final String USE_ADDITIONAL_CONFIGURATION_KEY = "com.nortal.persistence.useAdditionalConfiguration";
+    
     /**
      * Creates a new bean instance.
      */
@@ -44,4 +49,8 @@ public interface BeanMapping<B> {
      * property exists.
      */
     Property<B, Object> id();
+    
+    Class<B> type();
+    
+    Function<String, String> getPropertyNameMapper(final boolean includeReadOnly);
 }

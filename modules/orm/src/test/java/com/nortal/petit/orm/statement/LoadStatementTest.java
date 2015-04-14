@@ -15,20 +15,24 @@
  */
 package com.nortal.petit.orm.statement;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 
 import com.nortal.petit.orm.BeanMappers;
 import com.nortal.petit.orm.statement.fixture.LoadStatementFixture.LoadStmtBean;
 
 /**
- * 
+ * Replace with mockrunner-tests
  * 
  *
  */
@@ -36,16 +40,16 @@ import com.nortal.petit.orm.statement.fixture.LoadStatementFixture.LoadStmtBean;
 public class LoadStatementTest {
     
 //    @Mock
-    private JdbcTemplate jdbcTemplate;
+    private JdbcTemplate jdbcTemplate = new JdbcTemplate();
     
 //    @InjectMocks
-    private LoadStatement loadStmt;
+    private LoadStatement<LoadStmtBean> loadStmt = new LoadStatement<>(jdbcTemplate, new PostgreStatementBuilder(), LoadStmtBean.class);
     
     private <B> LoadStatement<B> load(JdbcTemplate jdbcTemplate, Class<B> type) {
         return new LoadStatement<B>(jdbcTemplate == null ? new JdbcTemplate() : jdbcTemplate, new OracleStatementBuilder(), type);
     }
     
-    
+//    @Test
     public void testSingleLoad() {
         Object[] params = new Object[]{};
         Mockito
@@ -53,6 +57,14 @@ public class LoadStatementTest {
             .thenReturn(new LoadStmtBean());
         
         LoadStatement<LoadStmtBean> load = load(jdbcTemplate, LoadStmtBean.class);
+        
+        MatcherAssert.assertThat(load, is(notNullValue()));
     }
 
+    public void testCustomBeanMapperLoad() {
+        
+        LoadStatement<LoadStmtBean> load = load(jdbcTemplate, LoadStmtBean.class);
+        
+    }
+    
 }

@@ -56,7 +56,6 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
     public InsertStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, B... beans) {
         Assert.isTrue(ArrayUtils.isNotEmpty(beans), "InsertStatement.construct: beans are mandatory");
         init(jdbcTemplate, statementBuilder, (Class<B>) beans[0].getClass());
-        statementBuilder.setPropertyNameMapper(getPropertyNameMapper(false));
 
         this.beans = Arrays.asList(beans);
         // by default insert all properties to db
@@ -65,6 +64,7 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
 
     @Override
     protected void prepare() {
+        getStatementBuilder().setPropertyNameMapper(getPropertyNameMapper(false));
         prepareSet();
         setSql(getStatementBuilder().getInsert());
     }
@@ -125,7 +125,7 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
                     for (int i = 0; i < getBeans().size(); i++) {
                         B bean = getBeans().get(i);
                         Object key = keyHolder.getKeyList().get(i).get(idProperty.column());
-                        idProperty.write(bean , key);
+                        idProperty.write(bean, key);
                         interceptorCalls.setBeanId(bean, key);
                     }
                 } catch (Exception e) {
@@ -144,10 +144,11 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
     }
 
     /**
-     * Collects data for interceptor parameters. One insert statement can use batch insert to insert multiple entities, each insert
+     * Collects data for interceptor parameters. One insert statement can use
+     * batch insert to insert multiple entities, each insert
      * results in separate interceptor call.
      */
-    private class InterceptorCalls{
+    private class InterceptorCalls {
         String table;
         String[] columns;
         Map<B, Object> ids;
