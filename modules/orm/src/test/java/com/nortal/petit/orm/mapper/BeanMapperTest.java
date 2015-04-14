@@ -100,6 +100,29 @@ public class BeanMapperTest extends BasicJDBCTestCaseAdapter {
         assertThat(loaded3.getOptional(), is(nullValue()));
     }
 
+    @Test
+    public void test__thatBeanMappingsAreNestedCorrectly() {
+        LoadStatement<MapperTestBean> loadStm = ss.loadStm(MapperTestBean.class).where(eq("id", 1L));
+//        MapperTestBean mtb = loadStm.single();
+//        assertThat(mtb.getOptional(), is(nullValue()));
+//        assertThat(mtb.getDescription(), is(notNullValue()));
+        
+        loadStm.getMapper().add("optional", "optional");
+        MapperTestBean mtb2 = loadStm.single();
+        assertThat(mtb2.getOptional(), is(notNullValue()));
+        assertThat(mtb2.getDescription(), is(notNullValue()));
+        
+        loadStm.select("id", "optional");
+        MapperTestBean mtb3 = loadStm.single();
+        System.out.println(getExecutedSQLStatements());
+
+        assertThat(mtb3.getId(), is(notNullValue()));
+        assertThat(mtb3.getDescription(), is(nullValue()));
+        assertThat(mtb3.getOptional(), is(notNullValue()));
+        
+    }
+    
+    
     private void prepareResultSet()
     {
         MockConnection connection = getJDBCMockObjectFactory().getMockConnection();

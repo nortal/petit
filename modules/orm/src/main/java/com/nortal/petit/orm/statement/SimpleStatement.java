@@ -34,7 +34,6 @@ import com.nortal.petit.orm.DefaultResultSetReader;
 public abstract class SimpleStatement<B> {
 
     private JdbcOperations jdbcTemplate;
-    protected BeanMapping<B> mapping;
     private BeanMapper<B> beanMapper;
     private StatementBuilder statementBuilder;
     private String sql;
@@ -46,9 +45,9 @@ public abstract class SimpleStatement<B> {
 
         this.jdbcTemplate = jdbcTemplate;
         this.statementBuilder = statementBuilder;
-        this.mapping = BeanMappings.get(beanClass);
+        this.beanMapper = new BeanMapper<B>(BeanMappings.get(beanClass), DefaultResultSetReader.instance());
 
-        this.statementBuilder.table(mapping.table());
+        this.statementBuilder.table(getMapping().table());
     }
 
     protected JdbcOperations getJdbcTemplate() {
@@ -64,12 +63,13 @@ public abstract class SimpleStatement<B> {
     }
 
     public BeanMapper<B> getMapper() {
-        if (beanMapper == null) {
-            beanMapper = new BeanMapper<B>(mapping, DefaultResultSetReader.instance());
-        }
         return beanMapper;
     }
 
+    protected void updateMapper(BeanMapper<B> beanMapper) {
+        this.beanMapper = beanMapper;
+    }
+    
     protected void setSql(String sql) {
         this.sql = sql;
     }
@@ -122,17 +122,6 @@ public abstract class SimpleStatement<B> {
 
     protected abstract StatementType getStatementType();
 
-//    private String getColumn(String name, boolean includeReadOnly) {
-//        Property<B, Object> p = getMapping().props().get(name);
-//        if (p == null) {
-//            Assert.notNull(p, "No property " + name + " found!");
-//        }
-//        if (includeReadOnly || !p.readOnly()) {
-//            return p.column();
-//        }
-//        return null;
-//    }
-//
     protected Function<String, String> getPropertyNameMapper(final boolean includeReadOnly) {
         return getMapper().mapping().getPropertyNameMapper(includeReadOnly);
     }

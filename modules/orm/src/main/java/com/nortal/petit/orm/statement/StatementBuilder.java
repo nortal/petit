@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.nortal.petit.orm.statement.interceptor.StatementInterceptor;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.base.Function;
@@ -42,6 +40,7 @@ import com.nortal.petit.orm.statement.clause.SqlPart;
 import com.nortal.petit.orm.statement.clause.SqlPropertyParam;
 import com.nortal.petit.orm.statement.clause.Where;
 import com.nortal.petit.orm.statement.clause.WhereClause;
+import com.nortal.petit.orm.statement.interceptor.StatementInterceptor;
 
 /**
  * @author Lauri Lättemäe (lauri.lattemae@nortal.com)
