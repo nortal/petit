@@ -20,11 +20,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 
 import javax.persistence.PersistenceException;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -55,7 +56,6 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
     public InsertStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, B... beans) {
         Assert.isTrue(ArrayUtils.isNotEmpty(beans), "InsertStatement.construct: beans are mandatory");
         init(jdbcTemplate, statementBuilder, (Class<B>) beans[0].getClass());
-        statementBuilder.setPropertyNameMapper(getPropertyNameMapper(false));
 
         this.beans = Arrays.asList(beans);
         // by default insert all properties to db
@@ -64,6 +64,7 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
 
     @Override
     protected void prepare() {
+        getStatementBuilder().setPropertyNameMapper(getPropertyNameMapper(false));
         prepareSet();
         setSql(getStatementBuilder().getInsert());
     }
@@ -76,6 +77,7 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
                 execBatchUpdate();
             } else {
                 final KeyHolder keyHolder = new GeneratedKeyHolder();
+                final InterceptorCalls interceptorCalls = new InterceptorCalls();
                 getJdbcTemplate().execute(new PreparedStatementCreator() {
                     @Override
                     public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
@@ -85,11 +87,13 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
                     @Override
                     public Object doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
                         MappingParamFunction<B> paramFunction = new MappingParamFunction<B>(getMapping());
+
                         for (B bean : getBeans()) {
                             paramFunction.setBean(bean);
                             Object[] params = getParams(paramFunction);
                             Object[] queryParams = params.length == 1 && params[0] instanceof Object[] ? (Object[]) params[0]
                                     : params;
+                            interceptorCalls.setBeanValues(bean, queryParams);
                             ArgPreparedStatementSetter.setValues(ps, queryParams, 1);
 
                             ps.executeUpdate();
@@ -119,11 +123,15 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
                 try {
                     Property<B, Object> idProperty = getMapping().id();
                     for (int i = 0; i < getBeans().size(); i++) {
-                        idProperty.write(getBeans().get(i), keyHolder.getKeyList().get(i).get(idProperty.column()));
+                        B bean = getBeans().get(i);
+                        Object key = keyHolder.getKeyList().get(i).get(idProperty.column());
+                        idProperty.write(bean, key);
+                        interceptorCalls.setBeanId(bean, key);
                     }
                 } catch (Exception e) {
                     throw new PersistenceException("InsertStatement.exec: unable to write bean primary key", e);
                 }
+                interceptorCalls.callInterceptor();
             }
         } else {
             getJdbcTemplate().update(getSql(), getParams(null));
@@ -133,5 +141,40 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
     @Override
     protected StatementType getStatementType() {
         return StatementType.INSERT;
+    }
+
+    /**
+     * Collects data for interceptor parameters. One insert statement can use
+     * batch insert to insert multiple entities, each insert
+     * results in separate interceptor call.
+     */
+    private class InterceptorCalls {
+        String table;
+        String[] columns;
+        Map<B, Object> ids;
+        Map<B, Object[]> values;
+
+        public InterceptorCalls() {
+            this.table = getMapping().table();
+            this.columns = Iterables.toArray(Lists.transform(setBy, getPropertyNameMapper(true)), String.class);
+            this.ids = new HashMap<B, Object>();
+            this.values = new HashMap<B, Object[]>();
+        }
+
+        public void setBeanId(B bean, Object id) {
+            this.ids.put(bean, id);
+        }
+
+        public void setBeanValues(B bean, Object[] values) {
+            this.values.put(bean, values);
+        }
+
+        public void callInterceptor() {
+            if (getStatementBuilder().getInterceptor() != null) {
+                for (B bean : getBeans()) {
+                    getStatementBuilder().getInterceptor().afterInsert(table, ids.get(bean), values.get(bean), columns);
+                }
+            }
+        }
     }
 }

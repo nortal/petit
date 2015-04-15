@@ -40,6 +40,7 @@ import com.nortal.petit.orm.statement.clause.SqlPart;
 import com.nortal.petit.orm.statement.clause.SqlPropertyParam;
 import com.nortal.petit.orm.statement.clause.Where;
 import com.nortal.petit.orm.statement.clause.WhereClause;
+import com.nortal.petit.orm.statement.interceptor.StatementInterceptor;
 
 /**
  * @author Lauri Lättemäe (lauri.lattemae@nortal.com)
@@ -66,6 +67,8 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
     private SqlPart where;
 
     private Function<String, String> propertyNameMapper = Functions.<String> identity();
+
+    private StatementInterceptor interceptor;
 
     public void setPropertyNameMapper(Function<String, String> propertyNameMapper) {
         this.propertyNameMapper = propertyNameMapper;
@@ -114,6 +117,10 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
         return this;
     }
 
+    public boolean isSetSelect() {
+        return select != null && !select.isEmpty();
+    }
+    
     public String getSelectClause() {
         StringBuilder clause = new StringBuilder("SELECT ");
         if (select != null && !select.isEmpty()) {
@@ -331,5 +338,13 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
             }
         }
         return res;
+    }
+
+    public void setInterceptor(StatementInterceptor interceptor) {
+        this.interceptor = interceptor;
+    }
+
+    public StatementInterceptor getInterceptor() {
+        return this.interceptor;
     }
 }

@@ -75,12 +75,11 @@ import org.springframework.core.annotation.AnnotationUtils;
  */
 public class BeanMappingFactoryImpl implements BeanMappingFactory {
 
-    private static final String USE_ADDITIONAL_CONFIGURATION_KEY = "com.nortal.persistence.useAdditionalConfiguration";
 
     private boolean useAdditionalConfiguration = false;
 
     public BeanMappingFactoryImpl() {
-        String property = System.getProperty(USE_ADDITIONAL_CONFIGURATION_KEY, "true");
+        String property = System.getProperty(BeanMapping.USE_ADDITIONAL_CONFIGURATION_KEY, "true");
         useAdditionalConfiguration((Boolean.valueOf(property)));
     }
 
@@ -123,7 +122,10 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
         Collection<PropertyDescriptor> pds = findPropertyDescriptors(type);
 
         for (PropertyDescriptor pd : pds) {
-            initProperty(props, idProps, pd.getName(), type);
+            Property<B, Object> prop = BeanMappingUtils.initProperty(props, pd.getName(), type);
+            if (prop != null && prop.isIdProperty()) {
+                idProps.add(prop);
+            }
         }
     }
 
@@ -153,79 +155,5 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
         }
 
         return fieldNames;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <B> void initProperty(Map<String, Property<B, Object>> props, List<Property<B, Object>> idProps,
-            String name, Class<B> type) {
-        PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(type, name);
-
-        if (!isPropertyReadableAndWritable(pd)) {
-            return;
-        }
-
-        List<Annotation> ans = BeanMappingReflectionUtils.readAnnotations(type, pd.getName());
-
-        if (BeanMappingReflectionUtils.getAnnotation(ans, Transient.class) != null) {
-            return;
-        }
-
-        Column column = BeanMappingReflectionUtils.getAnnotation(ans, Column.class);
-
-        ReflectionProperty<B, Object> prop = new ReflectionProperty<B, Object>(name,
-                (Class<Object>) pd.getPropertyType(), inferColumn(name, column), pd.getWriteMethod(),
-                pd.getReadMethod());
-
-        if (column != null) {
-            prop.readOnly(!column.insertable());
-        }
-
-        if (BeanMappingReflectionUtils.getAnnotation(ans, Id.class) != null) {
-            idProps.add(prop);
-        }
-
-        if (useAdditionalConfiguration()) {
-            prop.getConfiguration().setAnnotations(ans);
-            if (Collection.class.isAssignableFrom(pd.getPropertyType())) {
-                prop.getConfiguration().setCollectionTypeArguments(
-                        ((ParameterizedType) pd.getReadMethod().getGenericReturnType()).getActualTypeArguments());
-            }
-        }
-
-        if (BeanMappingReflectionUtils.getAnnotation(ans, Embedded.class) != null) {
-            props.putAll(getCompositeProperties(prop, ans));
-        } else {
-            props.put(prop.name(), prop);
-        }
-    }
-
-    private boolean isPropertyReadableAndWritable(PropertyDescriptor pd) {
-        if (pd == null || pd.getReadMethod() == null || pd.getWriteMethod() == null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    protected <B> Map<String, Property<B, Object>> getCompositeProperties(Property<B, Object> prop, List<Annotation> ans) {
-        Map<String, Property<B, Object>> map = new LinkedHashMap<String, Property<B, Object>>();
-        BeanMapping<Object> beanMapping = BeanMappings.get(prop.type());
-        for (Property<Object, Object> p : beanMapping.props().values()) {
-            Column column = BeanMappingReflectionUtils.getAttributeOverride(ans, p.name());
-            CompositeProperty<B, Object, Object> cp = new CompositeProperty<B, Object, Object>(prop, p,
-                    column != null ? column.name() : prop.column() + "_" + p.column());
-            if (column != null) {
-                cp.readOnly(!column.insertable());
-            }
-            map.put(cp.name(), cp);
-        }
-        return map;
-    }
-
-    protected String inferColumn(String name, Column column) {
-        if (column != null && StringUtils.isNotEmpty(column.name())) {
-            return column.name();
-        }
-        return BeanMappingStringUtils.camelCaseToUnderscore(name);
     }
 }

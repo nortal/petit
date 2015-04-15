@@ -60,4 +60,9 @@ public class CompositeProperty<B, T, S> extends PropertySupport<B, T> {
             return null;
         }
     }
+
+    @Override
+    public boolean isIdProperty() {
+        return false;
+    }
 }
