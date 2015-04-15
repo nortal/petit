@@ -9,4 +9,4 @@ notifications:
     on_failure: change
 
 after_success: 
-  - ./gradlew publish -PbintrayUsername=$BINTRAY_USERNAME -PbintrayPassword=$BINTRAY_API_KEY
+  - ./gradlew publish --rerun-tasks -PbintrayUsername=$BINTRAY_USERNAME -PbintrayPassword=$BINTRAY_API_KEY
