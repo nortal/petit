@@ -23,32 +23,31 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 	from javadoc.destinationDir
 }
 
-
-uploadArchives {
-  if (!project.hasProperty('username')) {
-    ext.username = ''
-  }
-  if (!project.hasProperty('password')) {
-    ext.password = ''
-  }
-  
-  repositories {
-    mavenDeployer {
-      configuration = configurations.deployerJars
-      pom.artifactId = project.name
-      repository(url: "https://api.bintray.com/maven/nortal/petit/"+project.name) {
-        authentication(userName: username, password: password)
+ if (JavaVersion.current().isJava8Compatible()) {
+    allprojects {
+      tasks.withType(Javadoc) {
+        options.addStringOption('Xdoclint:none', '-quiet')
       }
     }
   }
-}
-uploadArchives.doFirst {
-  if (!project.hasProperty('username') || username == "" || !project.hasProperty('password') || password == "") {
-    throw new InvalidUserDataException("-Pusername or -Ppassword parameters are missing")
-  }
-}
 
 publishing {
+ if (!project.hasProperty('bintrayUsername')) {
+    ext.bintrayUsername = ''
+  }
+  if (!project.hasProperty('bintrayPassword')) {
+    ext.bintrayPassword = ''
+  }
+
+  repositories {
+  	maven{
+        url 'https://api.bintray.com/maven/nortal/petit/'+project.name
+	        credentials {
+	            username bintrayUsername
+	            password bintrayPassword
+	        }
+        }
+    }
   publications {
     maven(MavenPublication) {
       from components.java
