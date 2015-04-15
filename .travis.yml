@@ -9,4 +9,4 @@ notifications:
     on_failure: change
 
 after_success: 
-  - ./gradlew uploadArchives -PbintrayUsername=$BINTRAY_USERNAME -PbintrayPassword=$BINTRAY_API_KEY
+  - ./gradlew publish -PbintrayUsername=$BINTRAY_USERNAME -PbintrayPassword=$BINTRAY_API_KEY
