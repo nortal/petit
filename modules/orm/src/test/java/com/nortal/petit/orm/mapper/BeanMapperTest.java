@@ -22,49 +22,30 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.jdbc.core.JdbcOperations;
-import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.mockrunner.jdbc.BasicJDBCTestCaseAdapter;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
-import com.nortal.petit.beanmapper.BeanMapping;
-import com.nortal.petit.core.dialect.OracleSqlDialect;
-import com.nortal.petit.core.dialect.SqlDialect;
-import com.nortal.petit.orm.DefaultBeanPropertyConverter;
-import com.nortal.petit.orm.StatementConfiguration;
-import com.nortal.petit.orm.StatementSupport;
+import com.nortal.petit.orm.MockrunnerBaseTest;
 import com.nortal.petit.orm.mapper.fixture.MapperTestBean;
 import com.nortal.petit.orm.statement.LoadStatement;
-import com.nortal.petit.orm.statement.OracleStatementBuilder;
-import com.nortal.petit.orm.statement.StatementBuilder;
-import com.nortal.petit.orm.statement.clause.Where;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BeanMapperTest extends BasicJDBCTestCaseAdapter {
-
-    private StatementSupport ss;
-    private MapperTestBean mtb;
+public class BeanMapperTest extends MockrunnerBaseTest {
 
     @Before
     public void setup() {
-        ss = new StatementSupport(new MockStatementConfiguration());
-
+        super.setup();
         prepareResultSet();
     }
 
-    // @Test
+    @Test
     public void test__beanMapperSimpleMapper() {
         MapperTestBean loaded = ss.loadById(MapperTestBean.class, 1L);
-
-        // System.out.println(getExecutedSQLStatements());
 
         verifyNumberPreparedStatements(1);
 
@@ -73,7 +54,7 @@ public class BeanMapperTest extends BasicJDBCTestCaseAdapter {
         assertThat(loaded.getOptional(), is(nullValue()));
     }
 
-    // @Test
+    @Test
     public void test__beanMapperExtendedMapper() {
         LoadStatement<MapperTestBean> loadStm = ss.loadStm(MapperTestBean.class).where(eq("id", 1L));
         loadStm.getMapper().add("optional", "optional");
@@ -133,32 +114,6 @@ public class BeanMapperTest extends BasicJDBCTestCaseAdapter {
         result.addColumn("optional");
         result.addRow(new Object[] { 1L, "Bean description", "Optional result" });
         statementHandler.prepareResultSet("select", result, new Object[] { 1L });
-    }
-
-    private class MockStatementConfiguration implements StatementConfiguration {
-
-        @Override
-        public JdbcTemplate getJdbcTemplate() {
-            return new JdbcTemplate(getJDBCMockObjectFactory().getMockDataSource());
-        }
-
-        @Override
-        public JdbcOperations getJdbcOperations() {
-            return new JdbcTemplate(getJDBCMockObjectFactory().getMockDataSource());
-        }
-
-        @Override
-        public SqlDialect getSqlDialect() {
-            return new OracleSqlDialect();
-        }
-
-        @Override
-        public StatementBuilder getStatementBuilder() {
-            StatementBuilder statementBuilder = new OracleStatementBuilder();
-            statementBuilder.setConverter(new DefaultBeanPropertyConverter());
-            return statementBuilder;
-        }
-
     }
 
 }

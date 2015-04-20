@@ -19,13 +19,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
@@ -39,6 +38,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.nortal.petit.beanmapper.Property;
 import com.nortal.petit.core.util.ArgPreparedStatementSetter;
 
@@ -76,62 +77,20 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
             if (getMapping().id() == null) {
                 execBatchUpdate();
             } else {
-                final KeyHolder keyHolder = new GeneratedKeyHolder();
-                final InterceptorCalls interceptorCalls = new InterceptorCalls();
-                getJdbcTemplate().execute(new PreparedStatementCreator() {
-                    @Override
-                    public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
-                        return con.prepareStatement(getSql(), Statement.RETURN_GENERATED_KEYS);
-                    }
-                }, new PreparedStatementCallback<Object>() {
-                    @Override
-                    public Object doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
-                        MappingParamFunction<B> paramFunction = new MappingParamFunction<B>(getMapping());
-
-                        for (B bean : getBeans()) {
-                            paramFunction.setBean(bean);
-                            Object[] params = getParams(paramFunction);
-                            Object[] queryParams = params.length == 1 && params[0] instanceof Object[] ? (Object[]) params[0]
-                                    : params;
-                            interceptorCalls.setBeanValues(bean, queryParams);
-                            ArgPreparedStatementSetter.setValues(ps, queryParams, 1);
-
-                            ps.executeUpdate();
-                            extractKeys(ps);
-                        }
-                        return null;
-                    }
-
-                    /**
-                     * @param ps
-                     * @throws SQLException
-                     */
-                    private void extractKeys(PreparedStatement ps) throws SQLException {
-                        ResultSet keys = ps.getGeneratedKeys();
-                        if (keys != null) {
-                            try {
-                                RowMapperResultSetExtractor<Map<String, Object>> rse = new RowMapperResultSetExtractor<Map<String, Object>>(
-                                        new ColumnMapRowMapper(), 1);
-                                keyHolder.getKeyList().addAll(rse.extractData(keys));
-                            } finally {
-                                JdbcUtils.closeResultSet(keys);
-                            }
-                        }
-                    }
-                });
+                Property<B, Object> idProperty = getMapping().id();
+                InsertCallbackResult result = getJdbcTemplate().execute(new InsertStatementCreator(idProperty.column()), new InsertStatementCallback(idProperty));
 
                 try {
-                    Property<B, Object> idProperty = getMapping().id();
                     for (int i = 0; i < getBeans().size(); i++) {
                         B bean = getBeans().get(i);
-                        Object key = keyHolder.getKeyList().get(i).get(idProperty.column());
+                        Object key = result.getKeyHolder().getKeyList().get(i).get(idProperty.column());
                         idProperty.write(bean, key);
-                        interceptorCalls.setBeanId(bean, key);
+                        result.getInterceptorCalls().setBeanId(bean, key);
                     }
                 } catch (Exception e) {
                     throw new PersistenceException("InsertStatement.exec: unable to write bean primary key", e);
                 }
-                interceptorCalls.callInterceptor();
+                result.getInterceptorCalls().callInterceptor();
             }
         } else {
             getJdbcTemplate().update(getSql(), getParams(null));
@@ -141,6 +100,103 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
     @Override
     protected StatementType getStatementType() {
         return StatementType.INSERT;
+    }
+
+    private final class InsertCallbackResult {
+        private KeyHolder keyHolder;
+        private InterceptorCalls interceptorCalls;
+        
+        public InsertCallbackResult(KeyHolder keyHolder, InterceptorCalls interceptorCalls) {
+            this.keyHolder = keyHolder;
+            this.interceptorCalls = interceptorCalls;
+        }
+
+        public KeyHolder getKeyHolder() {
+            return keyHolder;
+        }
+
+        public InterceptorCalls getInterceptorCalls() {
+            return interceptorCalls;
+        }
+    }
+    
+    private final class InsertStatementCallback implements PreparedStatementCallback<InsertCallbackResult> {
+        private final InsertStatement<B>.InterceptorCalls interceptorCalls = new InterceptorCalls();
+        private final KeyHolder keyHolder =  new GeneratedKeyHolder();
+        private Property<B, Object> idProperty;
+        
+        
+        private InsertStatementCallback(Property<B, Object> idProperty) {
+            this.idProperty = idProperty;
+        }
+
+        @Override
+        public InsertCallbackResult doInPreparedStatement(PreparedStatement ps) throws SQLException, DataAccessException {
+            MappingParamFunction<B> paramFunction = new MappingParamFunction<B>(getMapping());
+
+            for (B bean : getBeans()) {
+                paramFunction.setBean(bean);
+                Object[] params = getParams(paramFunction);
+                Object[] queryParams = params.length == 1 && params[0] instanceof Object[] ? (Object[]) params[0]
+                        : params;
+                interceptorCalls.setBeanValues(bean, queryParams);
+                ArgPreparedStatementSetter.setValues(ps, queryParams, 1);
+
+                ps.executeUpdate();
+                extractKeys(ps);
+            }
+            return new InsertCallbackResult(keyHolder, interceptorCalls);
+        }
+
+        /**
+         * @param ps
+         * @throws SQLException
+         */
+        private void extractKeys(PreparedStatement ps) throws SQLException {
+            ResultSet keys = ps.getGeneratedKeys();
+            if (keys != null) {
+                try {
+                    RowMapperResultSetExtractor<Map<String, Object>> rse = new RowMapperResultSetExtractor<Map<String, Object>>(
+                            new InsertKeyColumnRowMapper(idProperty.type()), 1);
+                    keyHolder.getKeyList().addAll(rse.extractData(keys));
+                } finally {
+                    JdbcUtils.closeResultSet(keys);
+                }
+            }
+        }
+    }
+
+    private final class InsertKeyColumnRowMapper extends ColumnMapRowMapper {
+        private Class<Object> idColumnTypeClass;
+        
+        public InsertKeyColumnRowMapper(Class<Object> type) {
+            this.idColumnTypeClass = type;
+        }
+
+        @Override
+        protected Object getColumnValue(ResultSet rs, int index) throws SQLException {
+            return JdbcUtils.getResultSetValue(rs, index, idColumnTypeClass);
+        }
+    }
+    
+    /**
+     * Sets up the statement to return created keys.
+     * When ID generation strategies are implemented this class is responsible for correctly initializing statement
+     * 
+     * @author Alrik Peets
+     */
+    private final class InsertStatementCreator implements PreparedStatementCreator {
+        private String idColumn;
+        
+        public InsertStatementCreator(String idColumn) {
+            this.idColumn = idColumn;
+        }
+        
+        @Override
+        public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
+            //Statement.RETURN_GENERATED_KEYS works fine in PostgreSQL, MySQL. In Oracle this returns ROWID
+            return con.prepareStatement(getSql(), new String[]{idColumn});
+        }
     }
 
     /**

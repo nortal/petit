@@ -1,0 +1,5 @@
+Changes in version 1.0.3
+
+* Fixed Issue 9 "ClassCastException in InsertStatement" (https://github.com/nortal/petit/issues/9)
+* Started using Mockrunner (http://mockrunner.github.io/) in tests to simulate Resultset results.
+

@@ -85,7 +85,6 @@ public class StatementSupport {
      *            Bean to insert
      * @return {@link InsertStatement}
      */
-    @SuppressWarnings("unchecked")
     public <B> InsertStatement<B> insertStm(B bean) {
         return insertStm(Arrays.asList(bean));
     }
@@ -107,7 +106,6 @@ public class StatementSupport {
      * @param bean
      *            Bean to insert
      */
-    @SuppressWarnings("unchecked")
     public <B> void insert(B bean) {
         if (bean == null) {
             return;
@@ -148,7 +146,6 @@ public class StatementSupport {
      *            Bean to update
      * @return {@link UpdateStatement}
      */
-    @SuppressWarnings("unchecked")
     public <B> UpdateStatement<B> updateStm(B bean) {
         return updateStm(Arrays.asList(bean));
     }
@@ -170,7 +167,6 @@ public class StatementSupport {
      * @param bean
      *            Bean to update
      */
-    @SuppressWarnings("unchecked")
     public <B> void update(B bean) {
         if (bean == null) {
             return;
@@ -218,7 +214,6 @@ public class StatementSupport {
      *            Bean to delete
      * @return {@link DeleteStatement}
      */
-    @SuppressWarnings("unchecked")
     public <B> DeleteStatement<B> deleteStm(B bean) {
         return deleteStm(Arrays.asList(bean));
     }
@@ -240,7 +235,6 @@ public class StatementSupport {
      * @param bean
      *            Bean to deleted
      */
-    @SuppressWarnings("unchecked")
     public <B> void delete(B bean) {
         if (bean == null) {
             return;
