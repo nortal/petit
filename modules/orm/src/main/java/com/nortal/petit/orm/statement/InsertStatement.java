@@ -19,13 +19,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -49,12 +51,15 @@ import com.nortal.petit.core.util.ArgPreparedStatementSetter;
  * @param <B>
  */
 public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
+    protected final static Logger log = Logger.getLogger(InsertStatement.class);
+	
     public InsertStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, Class<B> beanClass) {
         Assert.isTrue(beanClass != null, "InsertStatement.construct: beanClass is mandatory");
         init(jdbcTemplate, statementBuilder, beanClass);
     }
 
-    public InsertStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, B... beans) {
+    @SuppressWarnings("unchecked")
+	public InsertStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, B... beans) {
         Assert.isTrue(ArrayUtils.isNotEmpty(beans), "InsertStatement.construct: beans are mandatory");
         init(jdbcTemplate, statementBuilder, (Class<B>) beans[0].getClass());
 
@@ -205,32 +210,69 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
      * results in separate interceptor call.
      */
     private class InterceptorCalls {
-        String table;
-        String[] columns;
-        Map<B, Object> ids;
-        Map<B, Object[]> values;
+        private String table;
+        private String[] columns;
+        private List<BeanDataHolder> dataHolders = new ArrayList<>();
 
         public InterceptorCalls() {
             this.table = getMapping().table();
             this.columns = Iterables.toArray(Lists.transform(setBy, getPropertyNameMapper(true)), String.class);
-            this.ids = new HashMap<B, Object>();
-            this.values = new HashMap<B, Object[]>();
         }
 
+        private BeanDataHolder findDataHolder(B bean) {
+        	for (BeanDataHolder bdh : dataHolders) {
+        		if (bdh.isSameBean(bean)) {
+        			return bdh;
+        		}
+        	}
+        	BeanDataHolder bdh = new BeanDataHolder(bean);
+        	dataHolders.add(bdh);
+        	return bdh;
+        }
+        
         public void setBeanId(B bean, Object id) {
-            this.ids.put(bean, id);
+        	BeanDataHolder bdh = findDataHolder(bean);
+        	bdh.setId(id);
         }
 
         public void setBeanValues(B bean, Object[] values) {
-            this.values.put(bean, values);
+        	BeanDataHolder bdh = findDataHolder(bean);
+        	bdh.setValues(values);
         }
 
         public void callInterceptor() {
             if (getStatementBuilder().getInterceptor() != null) {
                 for (B bean : getBeans()) {
-                    getStatementBuilder().getInterceptor().afterInsert(table, ids.get(bean), values.get(bean), columns);
+                	BeanDataHolder bdh = findDataHolder(bean);
+                    getStatementBuilder().getInterceptor().afterInsert(table, bdh.getId(), bdh.getValues(), columns);
                 }
             }
         }
+    }
+    
+    private class BeanDataHolder {
+    	private B bean;
+    	private Object id;
+    	private Object[] values;
+
+    	public BeanDataHolder(B bean) {
+    		this.bean = bean;
+    	}
+    	
+    	public boolean isSameBean(B other) {
+    		return other != null && other.equals(bean);
+    	}
+		public Object getId() {
+			return id;
+		}
+		public void setId(Object id) {
+			this.id = id;
+		}
+		public Object[] getValues() {
+			return values;
+		}
+		public void setValues(Object[] values) {
+			this.values = values;
+		}
     }
 }
