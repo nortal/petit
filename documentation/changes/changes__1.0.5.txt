@@ -1,0 +1,5 @@
+Changes in version 1.0.5
+
+* Fixed Problem with InsertStatement InterceptorCalls that was not correctly collecting data about executed statements.
+
+
