@@ -18,78 +18,32 @@ package com.nortal.petit.beanmapper;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.springframework.util.Assert;
-
-import com.google.common.base.Function;
-
 /**
- * Extended BeanMapping. Useful when adding custom fields (for example fields with Transient annotation)
- * to the default mapping.
+ * Extended BeanMapping. Useful when adding custom fields (for example fields
+ * with Transient annotation) to the default mapping.
  * 
  * @author Alrik Peets
  *
  * @param <B>
  */
-public class ExtendedBeanMapping<B> implements BeanMapping<B> {
+public class ExtendedBeanMapping<B> extends DelegateBeanMapping<B> {
 
-    private BeanMapping<B> beanMapping;
     private Map<String, Property<B, Object>> extendedProps = new LinkedHashMap<String, Property<B, Object>>();
-    
-    public ExtendedBeanMapping(BeanMapping<B> beanMapping) {
-        this.beanMapping = beanMapping;
-    }
-    
-    @Override
-    public B instance() {
-        return beanMapping.instance();
-    }
 
-    @Override
-    public String table() {
-        return beanMapping.table();
+    public ExtendedBeanMapping(BeanMapping<B> beanMapping,
+            Map<String, Property<B, Object>> extProps) {
+        super(beanMapping);
+        this.extendedProps = extProps;
     }
 
     @Override
     public Map<String, Property<B, Object>> props() {
-        Map<String, Property<B, Object>> props = new LinkedHashMap<String, Property<B, Object>>(beanMapping.props());
+        Map<String, Property<B, Object>> props = new LinkedHashMap<String, Property<B, Object>>(
+                beanMapping.props());
         for (String key : extendedProps.keySet()) {
             Property<B, Object> property = extendedProps.get(key);
             props.put(key, property);
         }
         return props;
-    }
-
-    @Override
-    public Property<B, Object> id() {
-        return beanMapping.id();
-    }
-
-    public void addExtendedProperty(String property, String columnName) {
-        BeanMappingUtils.initExtendedProperty(extendedProps, property, type(), columnName);
-    }
-    
-    @Override
-    public Function<String, String> getPropertyNameMapper(final boolean includeReadOnly) {
-        return new Function<String, String>() {
-            public String apply(String name) {
-                return getColumn(name, includeReadOnly);
-            }
-        };
-    }
-
-    private String getColumn(String name, boolean includeReadOnly) {
-        Property<B, Object> p = props().get(name);
-        if (p == null) {
-            Assert.notNull(p, "No property " + name + " found!");
-        }
-        if (includeReadOnly || !p.readOnly()) {
-            return p.column();
-        }
-        return null;
-    }
-
-    @Override
-    public Class<B> type() {
-        return beanMapping.type();
     }
 }

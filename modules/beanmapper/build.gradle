@@ -4,7 +4,6 @@ dependencies {
 	compile group: 'org.springframework', name: 'spring-jdbc', version: springVersion
 	compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.2.1'
 	compile group: 'javax.persistence', name: 'persistence-api', version: '1.0.2'
-	compile group: 'com.google.guava', name: 'guava', version: guavaVersion
 }
 
 task testJar(type: Jar, dependsOn: testClasses){

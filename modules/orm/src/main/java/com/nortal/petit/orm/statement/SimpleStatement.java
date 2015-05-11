@@ -22,7 +22,7 @@ import com.google.common.base.Function;
 import com.nortal.petit.beanmapper.BeanMapper;
 import com.nortal.petit.beanmapper.BeanMapping;
 import com.nortal.petit.beanmapper.BeanMappings;
-import com.nortal.petit.beanmapper.Property;
+import com.nortal.petit.orm.BeanMappers;
 import com.nortal.petit.orm.DefaultResultSetReader;
 
 /**
@@ -38,16 +38,21 @@ public abstract class SimpleStatement<B> {
     private StatementBuilder statementBuilder;
     private String sql;
 
-    protected void init(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, Class<B> beanClass) {
-        Assert.notNull(beanClass, "SimpleStatement.init: bean class is mandatory");
+    protected void init(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, BeanMapping<B> beanMapping) {
+        Assert.notNull(beanMapping, "SimpleStatement.init: beanMapping is mandatory");
         Assert.notNull(jdbcTemplate, "SimpleStatement.init: jdbcTemplate is mandatory");
         Assert.notNull(statementBuilder, "SimpleStatement.init: sqlBuilder is mandatory");
 
         this.jdbcTemplate = jdbcTemplate;
         this.statementBuilder = statementBuilder;
-        this.beanMapper = new BeanMapper<B>(BeanMappings.get(beanClass), DefaultResultSetReader.instance());
+        this.beanMapper = new BeanMapper<B>(beanMapping, DefaultResultSetReader.instance());
 
         this.statementBuilder.table(getMapping().table());
+    }
+
+    protected void init(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, Class<B> beanClass) {
+        Assert.notNull(beanClass, "SimpleStatement.init: bean class is mandatory");
+        init(jdbcTemplate, statementBuilder, BeanMappings.get(beanClass));
     }
 
     protected JdbcOperations getJdbcTemplate() {
@@ -69,7 +74,18 @@ public abstract class SimpleStatement<B> {
     protected void updateMapper(BeanMapper<B> beanMapper) {
         this.beanMapper = beanMapper;
     }
-    
+
+    /**
+     * Specify which transient properties to include in the mapping.
+     * 
+     * @see BeanMappers#extended(Class, String...)
+     * 
+     *      This call is not cumulative.
+     */
+    public void setExtendedProperties(String... extendedProperties) {
+        updateMapper(BeanMappers.extended(getMapping().type(), extendedProperties));
+    }
+
     protected void setSql(String sql) {
         this.sql = sql;
     }
@@ -123,6 +139,6 @@ public abstract class SimpleStatement<B> {
     protected abstract StatementType getStatementType();
 
     protected Function<String, String> getPropertyNameMapper(final boolean includeReadOnly) {
-        return getMapper().mapping().getPropertyNameMapper(includeReadOnly);
+        return StatementUtil.getPropertyNameMapper(getMapping(), includeReadOnly);
     }
 }

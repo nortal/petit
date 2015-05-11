@@ -30,6 +30,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.mockrunner.jdbc.PreparedStatementResultSetHandler;
 import com.mockrunner.mock.jdbc.MockConnection;
 import com.mockrunner.mock.jdbc.MockResultSet;
+import com.nortal.petit.orm.BeanMappers;
 import com.nortal.petit.orm.MockrunnerBaseTest;
 import com.nortal.petit.orm.mapper.fixture.MapperTestBean;
 import com.nortal.petit.orm.statement.LoadStatement;
@@ -57,7 +58,7 @@ public class BeanMapperTest extends MockrunnerBaseTest {
     @Test
     public void test__beanMapperExtendedMapper() {
         LoadStatement<MapperTestBean> loadStm = ss.loadStm(MapperTestBean.class).where(eq("id", 1L));
-        loadStm.getMapper().add("optional", "optional");
+        loadStm.setExtendedProperties("optional", "optional");
         MapperTestBean single = loadStm.single();
 
         verifyNumberPreparedStatements(1);
@@ -73,7 +74,7 @@ public class BeanMapperTest extends MockrunnerBaseTest {
         assertThat(loaded.getOptional(), is(nullValue()));
 
         LoadStatement<MapperTestBean> loadStm = ss.loadStm(MapperTestBean.class).where(eq("id", 1L));
-        loadStm.getMapper().add("optional", "optional");
+        loadStm.setExtendedProperties("optional", "optional");
         MapperTestBean loaded2 = loadStm.single();
         assertThat(loaded2.getOptional(), equalTo("Optional result"));
 
@@ -88,7 +89,7 @@ public class BeanMapperTest extends MockrunnerBaseTest {
 //        assertThat(mtb.getOptional(), is(nullValue()));
 //        assertThat(mtb.getDescription(), is(notNullValue()));
         
-        loadStm.getMapper().add("optional", "optional");
+        loadStm.setExtendedProperties("optional", "optional");
         MapperTestBean mtb2 = loadStm.single();
         assertThat(mtb2.getOptional(), is(notNullValue()));
         assertThat(mtb2.getDescription(), is(notNullValue()));

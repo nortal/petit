@@ -17,10 +17,6 @@ package com.nortal.petit.beanmapper;
 
 import java.util.Map;
 
-import org.springframework.util.Assert;
-
-import com.google.common.base.Function;
-
 /**
  * A simple implementation of a BeanMapping.
  * 
@@ -68,26 +64,6 @@ public class SimpleBeanMapping<B> implements BeanMapping<B> {
     @Override
     public String toString() {
         return type.getSimpleName();
-    }
-
-    @Override
-    public Function<String, String> getPropertyNameMapper(final boolean includeReadOnly) {
-        return new Function<String, String>() {
-            public String apply(String name) {
-                return getColumn(name, includeReadOnly);
-            }
-        };
-    }
-    
-    private String getColumn(String name, boolean includeReadOnly) {
-        Property<B, Object> p = props().get(name);
-        if (p == null) {
-            Assert.notNull(p, "No property " + name + " found!");
-        }
-        if (includeReadOnly || !p.readOnly()) {
-            return p.column();
-        }
-        return null;
     }
 
     @Override
