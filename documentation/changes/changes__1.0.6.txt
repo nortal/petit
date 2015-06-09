@@ -1,0 +1,3 @@
+Changes in version 1.0.6
+
+* Fixed #12. It is now possible to turn off/on beanmapping caching via BeanMappings#setCached or BeanMappings#CACHE_BEANMAPPINGS_KEY system property.
