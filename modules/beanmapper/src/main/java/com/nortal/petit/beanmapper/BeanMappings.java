@@ -33,8 +33,6 @@ public class BeanMappings {
 	/**
 	 * Specify whether beanMapping instances should be cached (default behaviour) or
 	 * constructed every time (useful during development).
-	 * 
-	 * @param enabled
 	 */
 	public static void setCached(boolean cached) {
 		BeanMappingCache.getInstance().setEnabled(cached);
