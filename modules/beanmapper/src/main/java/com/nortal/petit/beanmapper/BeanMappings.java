@@ -24,26 +24,38 @@ package com.nortal.petit.beanmapper;
  */
 public class BeanMappings {
 
-    private static BeanMappingFactory factory = new BeanMappingFactoryImpl();
-
-    public static void setFactory(BeanMappingFactory factory) {
-        BeanMappings.factory = factory;
-    }
-    
 	/**
-	 * Specify whether beanMapping instances should be cached (default behaviour) or
-	 * constructed every time (useful during development).
+	 * A key for a sysprop which can specify whether beanMapping instances
+	 * should be cached (default behaviour) or constructed every time (useful
+	 * during development).
+	 * 
+	 * This condition can be overriden by a call to {@link #setCached(boolean)}.
+	 */
+	public static final String CACHE_BEANMAPPINGS_KEY = "com.nortal.petit.cacheBeanMappings";
+
+	private static BeanMappingFactory factory = new BeanMappingFactoryImpl();
+
+	public static void setFactory(BeanMappingFactory factory) {
+		BeanMappings.factory = factory;
+	}
+
+	/**
+	 * Specify whether beanMapping instances should be cached (default
+	 * behaviour) or constructed every time (useful during development).
+	 * 
+	 * This method has precedence over the sysprop's
+	 * {@value #CACHE_BEANMAPPINGS_KEY} value.
 	 */
 	public static void setCached(boolean cached) {
 		BeanMappingCache.getInstance().setEnabled(cached);
 	}
 
-    public static <B> BeanMapping<B> get(Class<B> beanClass) {
-        BeanMapping<B> mapping = BeanMappingCache.getInstance().get(beanClass);
-        if (mapping == null) {
-        	mapping = factory.create(beanClass);
-            BeanMappingCache.getInstance().put(beanClass, mapping);
-        }
-        return mapping;
-    }
+	public static <B> BeanMapping<B> get(Class<B> beanClass) {
+		BeanMapping<B> mapping = BeanMappingCache.getInstance().get(beanClass);
+		if (mapping == null) {
+			mapping = factory.create(beanClass);
+			BeanMappingCache.getInstance().put(beanClass, mapping);
+		}
+		return mapping;
+	}
 }
