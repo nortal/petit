@@ -29,12 +29,22 @@ public class BeanMappings {
     public static void setFactory(BeanMappingFactory factory) {
         BeanMappings.factory = factory;
     }
+    
+	/**
+	 * Specify whether beanMapping instances should be cached (default behaviour) or
+	 * constructed every time (useful during development).
+	 * 
+	 * @param enabled
+	 */
+	public static void setCached(boolean cached) {
+		BeanMappingCache.getInstance().setEnabled(cached);
+	}
 
     public static <B> BeanMapping<B> get(Class<B> beanClass) {
         BeanMapping<B> mapping = BeanMappingCache.getInstance().get(beanClass);
         if (mapping == null) {
-            BeanMappingCache.getInstance().put(beanClass, factory.create(beanClass));
-            mapping = BeanMappingCache.getInstance().get(beanClass);
+        	mapping = factory.create(beanClass);
+            BeanMappingCache.getInstance().put(beanClass, mapping);
         }
         return mapping;
     }
