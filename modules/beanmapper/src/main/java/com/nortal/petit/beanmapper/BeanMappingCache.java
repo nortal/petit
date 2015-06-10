@@ -24,30 +24,38 @@ import java.util.WeakHashMap;
  * @author Aleksei Lissitsin <aleksei.lissitsin@webmedia.ee>
  */
 class BeanMappingCache {
-    private static BeanMappingCache instance = new BeanMappingCache();
+	static BeanMappingCache instance = new BeanMappingCache();
 
-    private Map<Class<?>, BeanMapping<?>> map = new WeakHashMap<Class<?>, BeanMapping<?>>();
-    private boolean enabled = true;
+	private Map<Class<?>, BeanMapping<?>> map = new WeakHashMap<Class<?>, BeanMapping<?>>();
+	private boolean enabled = true;
 
-    @SuppressWarnings("unchecked")
-    protected <B> BeanMapping<B> get(Class<B> clazz) {
-        if (enabled) {
-            return (BeanMapping<B>) map.get(clazz);
-        }
-        return null;
-    }
+	BeanMappingCache() {
+		String property = System
+				.getProperty(BeanMappings.CACHE_BEANMAPPINGS_KEY);
+		if (property != null) {
+			setEnabled(Boolean.valueOf(property));
+		}
+	}
 
-    protected <B> void put(Class<B> clazz, BeanMapping<B> mapping) {
-        if (enabled) {
-            map.put(clazz, mapping);
-        }
-    }
+	@SuppressWarnings("unchecked")
+	protected <B> BeanMapping<B> get(Class<B> clazz) {
+		if (enabled) {
+			return (BeanMapping<B>) map.get(clazz);
+		}
+		return null;
+	}
 
-    protected void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+	protected <B> void put(Class<B> clazz, BeanMapping<B> mapping) {
+		if (enabled) {
+			map.put(clazz, mapping);
+		}
+	}
 
-    protected static BeanMappingCache getInstance() {
-        return instance;
-    }
+	protected void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	protected static BeanMappingCache getInstance() {
+		return instance;
+	}
 }

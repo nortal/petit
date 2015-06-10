@@ -22,7 +22,6 @@ import com.google.common.base.Function;
 import com.nortal.petit.beanmapper.BeanMapper;
 import com.nortal.petit.beanmapper.BeanMapping;
 import com.nortal.petit.beanmapper.BeanMappings;
-import com.nortal.petit.beanmapper.Property;
 import com.nortal.petit.orm.DefaultResultSetReader;
 
 /**
