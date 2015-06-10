@@ -24,7 +24,7 @@ import java.util.WeakHashMap;
  * @author Aleksei Lissitsin <aleksei.lissitsin@webmedia.ee>
  */
 class BeanMappingCache {
-	private static BeanMappingCache instance = new BeanMappingCache();
+	static BeanMappingCache instance = new BeanMappingCache();
 
 	private Map<Class<?>, BeanMapping<?>> map = new WeakHashMap<Class<?>, BeanMapping<?>>();
 	private boolean enabled = true;

@@ -36,15 +36,20 @@ public class BeanMappingCacheTest {
 		}
 	}
 	
-	private FactoryWrapper init(boolean cached) {
+	private FactoryWrapper init(boolean cached, boolean useSysProp) {
 		FactoryWrapper factory = new FactoryWrapper(new BeanMappingFactoryImpl());
 		BeanMappings.setFactory(factory);
-		BeanMappings.setCached(cached);
+		if (useSysProp){
+			System.setProperty(BeanMappings.CACHE_BEANMAPPINGS_KEY, Boolean.toString(cached));
+			BeanMappingCache.instance = new BeanMappingCache();
+		} else {
+			BeanMappings.setCached(cached);
+		}
 		return factory;
 	}
 	
-	private int counterLong(boolean cached){
-		FactoryWrapper factory = init(cached);
+	private int counterLong(boolean cached, boolean useSysProp){
+		FactoryWrapper factory = init(cached, useSysProp);
 		
 		new BeanMappingFactoryTest().testColumnNames();
 		new BeanMappingFactoryTest().testColumnNames();
@@ -54,16 +59,16 @@ public class BeanMappingCacheTest {
 	
 	@Test
 	public void testCachedLong(){
-		Assert.assertTrue(counterLong(true) <= 2);
+		Assert.assertTrue(counterLong(true, false) <= 2);
 	}
 
 	@Test
 	public void testUncachedLong(){
-		Assert.assertEquals(4, counterLong(false));
+		Assert.assertEquals(4, counterLong(false, false));
 	}
 	
-	private int counter(boolean cached){
-		FactoryWrapper factory = init(cached);
+	private int counter(boolean cached, boolean useSysProp){
+		FactoryWrapper factory = init(cached, useSysProp);
 		
 		new BeanMappingTest().testTable__fullBeanMapping();
 		new BeanMappingTest().testTable__fullBeanMapping();
@@ -73,13 +78,20 @@ public class BeanMappingCacheTest {
 	
 	@Test
 	public void testCached(){
-		Assert.assertTrue(counter(true) <= 1);
+		Assert.assertTrue(counter(true, false) <= 1);
 	}
 	
 	@Test
 	public void testUncached(){
-		Assert.assertEquals(2, counter(false));
+		Assert.assertEquals(2, counter(false, false));
 	}
 	
+	@Test
+	public void testSysProp(){
+		Assert.assertTrue(counterLong(true, true) <= 2);
+		Assert.assertTrue(counter(true, true) <= 1);
+		Assert.assertEquals(2, counter(false, true));
+		Assert.assertEquals(4, counterLong(false, true));
+	}
 
 }
