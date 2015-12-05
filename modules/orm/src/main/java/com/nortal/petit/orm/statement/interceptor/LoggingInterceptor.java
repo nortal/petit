@@ -15,11 +15,12 @@
  */
 package com.nortal.petit.orm.statement.interceptor;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class LoggingInterceptor implements StatementInterceptor {
-    protected final static Logger LOG = Logger.getLogger(LoggingInterceptor.class);
+    protected final static Logger LOG = LoggerFactory.getLogger(LoggingInterceptor.class);
 
     @Override
     public void afterUpdate(String table, Object id, Object[] currentState, Object[] previuosState, String[] columnNames) {

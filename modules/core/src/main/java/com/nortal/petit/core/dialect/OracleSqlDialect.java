@@ -22,7 +22,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.CallableStatementCallback;
 import org.springframework.jdbc.core.CallableStatementCreator;
@@ -37,7 +38,7 @@ import com.nortal.petit.core.util.ArgPreparedStatementSetter;
  */
 public class OracleSqlDialect implements SqlDialect {
 
-    protected final static Logger LOG = Logger.getLogger(OracleSqlDialect.class);
+    protected final static Logger LOG = LoggerFactory.getLogger(OracleSqlDialect.class);
 
     @Override
     public String getSysdateBetweenClause(String startDateField, String endDateField) {

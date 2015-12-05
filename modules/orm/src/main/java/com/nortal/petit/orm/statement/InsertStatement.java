@@ -27,7 +27,8 @@ import java.util.Map;
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcOperations;
@@ -51,7 +52,7 @@ import com.nortal.petit.core.util.ArgPreparedStatementSetter;
  * @param <B>
  */
 public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
-    protected final static Logger log = Logger.getLogger(InsertStatement.class);
+    protected final static Logger log = LoggerFactory.getLogger(InsertStatement.class);
 	
     public InsertStatement(JdbcOperations jdbcTemplate, StatementBuilder statementBuilder, Class<B> beanClass) {
         Assert.isTrue(beanClass != null, "InsertStatement.construct: beanClass is mandatory");

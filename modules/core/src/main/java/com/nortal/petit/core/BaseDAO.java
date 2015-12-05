@@ -15,7 +15,8 @@
  */
 package com.nortal.petit.core;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -27,7 +28,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
  * @date 13.02.2013
  */
 public abstract class BaseDAO implements SqlConfiguration {
-    protected final static Logger LOG = Logger.getLogger(BaseDAO.class);
+    protected final static Logger LOG = LoggerFactory.getLogger(BaseDAO.class);
 
     @Override
     public abstract JdbcOperations getJdbcOperations();
