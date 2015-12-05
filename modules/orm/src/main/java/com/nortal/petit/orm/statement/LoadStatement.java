@@ -50,7 +50,8 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
     @Override
     public LoadStatement<B> select(String... properties) {
         getStatementBuilder().select(properties);
-        updateMapper(new BeanMapper<B>(new RestrictedBeanMapping<B>(getMapping(), properties), DefaultResultSetReader.instance()));
+        updateMapper(new BeanMapper<B>(new RestrictedBeanMapping<B>(getMapping(), properties),
+                DefaultResultSetReader.instance()));
         return this;
     }
 
@@ -78,7 +79,7 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
 
     @Override
     protected void prepare() {
-        getStatementBuilder().setPropertyNameMapper(getMapping().getPropertyNameMapper(true));
+        getStatementBuilder().setPropertyNameMapper(StatementUtil.getPropertyNameMapper(getMapping(), true));
         // If no specific select is set select all props
         if (!getStatementBuilder().isSetSelect()) {
             getStatementBuilder().select(StatementUtil.toStringArray(getMapping().props().keySet()));
@@ -87,8 +88,8 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
     }
 
     /**
-     * Return the first item from matching list. 
-     * Returns <code>null</code> if no result. 
+     * Return the first item from matching list.
+     * Returns <code>null</code> if no result.
      * 
      * @return
      */
@@ -103,8 +104,10 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
     }
 
     /**
-     * Query for single object. Will return <code>null</code> if not element found.
-     * Throws {@link IncorrectResultSizeDataAccessException} if more than one element returned.
+     * Query for single object. Will return <code>null</code> if not element
+     * found.
+     * Throws {@link IncorrectResultSizeDataAccessException} if more than one
+     * element returned.
      * 
      * @return
      */
@@ -116,16 +119,17 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
             return null;
         }
     }
-    
+
     /**
      * Query for single object.
-     * Throws {@link IncorrectResultSizeDataAccessException} if not exactly one element returned.
+     * Throws {@link IncorrectResultSizeDataAccessException} if not exactly one
+     * element returned.
      * 
      * @return
      */
     public B require() {
         prepare();
-        return getJdbcTemplate().queryForObject(getSql(),  getMapper(), getParams(null));
+        return getJdbcTemplate().queryForObject(getSql(), getMapper(), getParams(null));
     }
 
     public List<B> range(int start, int limit) {

@@ -30,7 +30,6 @@ import org.springframework.jdbc.core.RowMapper;
 public class BeanMapper<B> implements RowMapper<B> {
 
     private BeanMapping<B> mapping;
-    private ExtendedBeanMapping<B> extendedMapping;
 
     private ResultSetReader resultSetReader;
 
@@ -40,16 +39,9 @@ public class BeanMapper<B> implements RowMapper<B> {
     }
 
     public BeanMapping<B> mapping() {
-        return extendedMapping != null ? extendedMapping : mapping;
+        return mapping;
     }
 
-    public void add(String property, String columnName) {
-        if (extendedMapping == null) {
-            extendedMapping = new ExtendedBeanMapping<>(mapping);
-        }
-        extendedMapping.addExtendedProperty(property, columnName);
-    }
-    
     @Override
     public B mapRow(ResultSet rs, int rowNum) throws SQLException {
         B o = mapping().instance();

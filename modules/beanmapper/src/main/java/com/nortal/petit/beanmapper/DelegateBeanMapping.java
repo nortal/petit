@@ -15,29 +15,41 @@
  */
 package com.nortal.petit.beanmapper;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A beanmapping restricted to a set of properties.
- * 
  * @author Aleksei Lissitsin
- * 
  */
-public class RestrictedBeanMapping<B> extends DelegateBeanMapping<B> {
+public class DelegateBeanMapping<B> implements BeanMapping<B> {
 
-    private Map<String, Property<B, Object>> propMap = new HashMap<String, Property<B, Object>>();
+    protected BeanMapping<B> beanMapping;
 
-    public RestrictedBeanMapping(BeanMapping<B> beanMapping, String... props) {
-        super(beanMapping);
-        Map<String, Property<B, Object>> origMap = beanMapping.props();
-        for (String prop : props) {
-            propMap.put(prop, origMap.get(prop));
-        }
+    public DelegateBeanMapping(BeanMapping<B> beanMapping) {
+        this.beanMapping = beanMapping;
+    }
+
+    @Override
+    public B instance() {
+        return beanMapping.instance();
+    }
+
+    @Override
+    public String table() {
+        return beanMapping.table();
     }
 
     @Override
     public Map<String, Property<B, Object>> props() {
-        return propMap;
+        return beanMapping.props();
+    }
+
+    @Override
+    public Property<B, Object> id() {
+        return beanMapping.id();
+    }
+
+    @Override
+    public Class<B> type() {
+        return beanMapping.type();
     }
 }

@@ -17,6 +17,7 @@ package com.nortal.petit.orm;
 
 import com.nortal.petit.beanmapper.BeanMapper;
 import com.nortal.petit.beanmapper.BeanMappings;
+import com.nortal.petit.beanmapper.ext.ExtendedBeanMappings;
 
 /**
  * @author Aleksei Lissitsin
@@ -24,6 +25,20 @@ import com.nortal.petit.beanmapper.BeanMappings;
  */
 public abstract class BeanMappers {
     public static <B> BeanMapper<B> get(Class<B> beanClass) {
-        return new BeanMapper<B>(BeanMappings.get(beanClass), new DefaultResultSetReader());
+        return new BeanMapper<B>(BeanMappings.get(beanClass),
+                new DefaultResultSetReader());
+    }
+
+    /**
+     * Gets a beanMapper with an underlying extended beanMapping.
+     * 
+     * @param extProps
+     *            are in the form name1, column1, name2, column2, ... and
+     *            expected to contain an even number of elements.
+     */
+    public static <B> BeanMapper<B> extended(Class<B> beanClass,
+            String... extProps) {
+        return new BeanMapper<B>(ExtendedBeanMappings.get(beanClass, extProps),
+                new DefaultResultSetReader());
     }
 }
