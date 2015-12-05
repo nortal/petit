@@ -2,6 +2,7 @@ sudo: false
 language: java
 jdk:
   - oraclejdk7
+  - oraclejdk8
 
 notifications:
   email:
@@ -9,4 +10,4 @@ notifications:
     on_failure: change
 
 after_success: 
-  - ./gradlew uploadArchives -Pusername=$BINTRAY_USERNAME -Ppassword=$BINTRAY_API_KEY
+  - ./gradlew publish --rerun-tasks -PbintrayUsername=$BINTRAY_USERNAME -PbintrayPassword=$BINTRAY_API_KEY
