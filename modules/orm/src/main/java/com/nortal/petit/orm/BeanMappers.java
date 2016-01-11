@@ -15,7 +15,6 @@
  */
 package com.nortal.petit.orm;
 
-import com.nortal.petit.beanmapper.BeanMapper;
 import com.nortal.petit.beanmapper.BeanMappings;
 import com.nortal.petit.beanmapper.ext.ExtendedBeanMappings;
 

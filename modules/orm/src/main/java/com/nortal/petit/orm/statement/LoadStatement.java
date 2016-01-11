@@ -26,8 +26,8 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 
-import com.nortal.petit.beanmapper.BeanMapper;
 import com.nortal.petit.beanmapper.RestrictedBeanMapping;
+import com.nortal.petit.orm.BeanMapper;
 import com.nortal.petit.orm.DefaultResultSetReader;
 import com.nortal.petit.orm.statement.clause.Limit;
 import com.nortal.petit.orm.statement.clause.Order;

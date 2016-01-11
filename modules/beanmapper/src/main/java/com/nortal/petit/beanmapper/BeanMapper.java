@@ -18,8 +18,6 @@ package com.nortal.petit.beanmapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.springframework.jdbc.core.RowMapper;
-
 /**
  * A RowMapper relying on an underlying BeanMapping and a provided
  * ResultSetReader.
@@ -27,7 +25,7 @@ import org.springframework.jdbc.core.RowMapper;
  * @author Aleksei Lissitsin
  * 
  */
-public class BeanMapper<B> implements RowMapper<B> {
+public class BeanMapper<B> {
 
     private BeanMapping<B> mapping;
 
@@ -42,7 +40,6 @@ public class BeanMapper<B> implements RowMapper<B> {
         return mapping;
     }
 
-    @Override
     public B mapRow(ResultSet rs, int rowNum) throws SQLException {
         B o = mapping().instance();
 

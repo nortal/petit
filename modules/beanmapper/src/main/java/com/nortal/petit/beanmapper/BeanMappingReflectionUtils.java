@@ -15,6 +15,8 @@
  */
 package com.nortal.petit.beanmapper;
 
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -27,7 +29,6 @@ import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.springframework.beans.BeanUtils;
 
 /**
  * @author Aleksei Lissitsin
@@ -76,7 +77,7 @@ class BeanMappingReflectionUtils {
         if (field != null) {
             addAll(l, field.getAnnotations());
         }
-        PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(type, name);
+        PropertyDescriptor pd = getPropertyDescriptor(type, name);
         if (pd != null) {
             if (pd.getReadMethod() != null) {
                 addAll(l, pd.getReadMethod().getAnnotations());
@@ -85,6 +86,65 @@ class BeanMappingReflectionUtils {
         if (type.getSuperclass() != null) {
             readAnnotations(l, type.getSuperclass(), name);
         }
+    }
+
+    static PropertyDescriptor getPropertyDescriptor(Class<?> type, String name) {
+        // return BeanUtils.getPropertyDescriptor(type, name);
+        try {
+            PropertyDescriptor[] propertyDescriptors = Introspector.getBeanInfo(type).getPropertyDescriptors();
+            for (PropertyDescriptor pd : propertyDescriptors) {
+                if (name.equals(pd.getName())) {
+                    return pd;
+                }
+            }
+            return null;
+        } catch (IntrospectionException e) {
+            throw new RuntimeException("Error introspecting type " + type, e);
+        }
+
+    }
+    
+    /**
+     * COPIED FROM Spring's AnnotationUtils.
+     * 
+     * Find a single {@link Annotation} of {@code annotationType} from the supplied {@link Class},
+     * traversing its interfaces and superclasses if no annotation can be found on the given class itself.
+     * <p>This method explicitly handles class-level annotations which are not declared as
+     * {@link java.lang.annotation.Inherited inherited} <i>as well as annotations on interfaces</i>.
+     * <p>The algorithm operates as follows: Searches for an annotation on the given class and returns
+     * it if found. Else searches all interfaces that the given class declares, returning the annotation
+     * from the first matching candidate, if any. Else proceeds with introspection of the superclass
+     * of the given class, checking the superclass itself; if no annotation found there, proceeds
+     * with the interfaces that the superclass declares. Recursing up through the entire superclass
+     * hierarchy if no match is found.
+     * @param clazz the class to look for annotations on
+     * @param annotationType the annotation type to look for
+     * @return the annotation found, or {@code null} if none found
+     */
+    static <A extends Annotation> A findAnnotation(Class<?> clazz, Class<A> annotationType) {
+        A annotation = clazz.getAnnotation(annotationType);
+        if (annotation != null) {
+            return annotation;
+        }
+        for (Class<?> ifc : clazz.getInterfaces()) {
+            annotation = findAnnotation(ifc, annotationType);
+            if (annotation != null) {
+                return annotation;
+            }
+        }
+        if (!Annotation.class.isAssignableFrom(clazz)) {
+            for (Annotation ann : clazz.getAnnotations()) {
+                annotation = findAnnotation(ann.annotationType(), annotationType);
+                if (annotation != null) {
+                    return annotation;
+                }
+            }
+        }
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass == null || superclass.equals(Object.class)) {
+            return null;
+        }
+        return findAnnotation(superclass, annotationType);
     }
 
     static List<Annotation> readAnnotations(Class<?> type, String name) {
