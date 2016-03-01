@@ -36,8 +36,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
-import org.springframework.core.annotation.AnnotationUtils;
 
 /**
  * The standard BeanMapping factory. Constructs BeanMapping for a given class.
@@ -109,7 +107,7 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
     }
 
     public String inferTable(Class<?> type) {
-        Table table = AnnotationUtils.findAnnotation(type, Table.class);
+        Table table = BeanMappingReflectionUtils.findAnnotation(type, Table.class);
         if (table != null && !StringUtils.isBlank(table.name())) {
             return (StringUtils.isNotBlank(table.schema()) ? (table.schema() + ".") : "") + table.name();
         }
@@ -132,7 +130,7 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
 
         Collection<String> fieldNames = collectFieldNames(clazz);
         for (String fieldName : fieldNames) {
-            PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(clazz, fieldName);
+            PropertyDescriptor pd = BeanMappingReflectionUtils.getPropertyDescriptor(clazz, fieldName);
             if (pd != null) {
                 result.add(pd);
             }

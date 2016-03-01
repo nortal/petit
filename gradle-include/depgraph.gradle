@@ -1,6 +1,12 @@
 ext {
   reportsDir = file("build/reports")
   compileDeps = "compileDeps"
+  addChildsToList = { pDep, deps ->
+		pDep.children.each{
+			deps.add "\"$pDep.moduleName\" -> \"$it.moduleName\";"
+			addChildsToList(it, deps)
+		}
+	  }
 }
 
 ['', 'Full'].each { def suffix ->
@@ -23,7 +29,15 @@ ext {
             deps.add "\"$subproject.name\" -> \"$dependency.name\";"
           }
         }
+        if (suffix == 'Full') {
+	        subproject.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each{directDep ->
+				addChildsToList(directDep, deps)
+		  	}
+	  	}
       }
+	  
+
+	  
       compileDepsDot.write([
         "digraph compile{",
         *(subs as List),

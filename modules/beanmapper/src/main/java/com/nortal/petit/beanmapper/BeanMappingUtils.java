@@ -29,7 +29,6 @@ import javax.persistence.Id;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 
 public class BeanMappingUtils {
 
@@ -45,7 +44,7 @@ public class BeanMappingUtils {
      * @param type
      */
     public static <B> Property<B, Object> initProperty(Map<String, Property<B, Object>> props, String name, Class<B> type) {
-        PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(type, name);
+        PropertyDescriptor pd = BeanMappingReflectionUtils.getPropertyDescriptor(type, name);
 
         if (!isPropertyReadableAndWritable(pd)) {
             return null;
@@ -98,7 +97,7 @@ public class BeanMappingUtils {
      * @return
      */
     public static <B> Property<B, Object> initExtendedProperty(Map<String, Property<B, Object>> props, String name, Class<B> type, String columnMapping) {
-        PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(type, name);
+        PropertyDescriptor pd = BeanMappingReflectionUtils.getPropertyDescriptor(type, name);
 
         if (!isPropertyReadableAndWritable(pd)) {
             return null;

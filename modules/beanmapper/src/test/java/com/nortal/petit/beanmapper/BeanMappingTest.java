@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.nortal.petit.beanmapper.fixture.BeanMappingTestBean;
+import com.nortal.petit.beanmapper.fixture.IdLessTestBean;
 
 public class BeanMappingTest {
 
@@ -31,6 +32,16 @@ public class BeanMappingTest {
 
         Assert.assertEquals("test_schema.bean_mapping_test", bm.table());
 
+    }
+    
+    @Test
+    public void testIdLessBean() {
+        BeanMapping<IdLessTestBean> bm = BeanMappings.get(IdLessTestBean.class);
+
+        Assert.assertNotNull(bm);
+        Assert.assertNull(bm.id());
+
+        Assert.assertEquals("test_schema.id_less_tester", bm.table());
     }
 
 }
