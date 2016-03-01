@@ -35,7 +35,6 @@ configure(nonJavaProjects()){
 
 
 subprojects {
-    apply from: project.rootDir.path + "/gradle-include/eclipse.gradle"
     apply from: project.rootDir.path + "/gradle-include/jacoco.gradle"
     
     apply plugin: 'license'
@@ -95,7 +94,7 @@ subprojects {
 // ant.replace(file: project.rootDir "sonar-project.properties", token: "sonar.projectVersion", value: "2.0")
 //}
 
-task wrapper(type: Wrapper) { gradleVersion = '2.1' }
+task wrapper(type: Wrapper) { gradleVersion = '2.11' }
 
 task simplePar(type: Zip) {
     group = "Distribution"
