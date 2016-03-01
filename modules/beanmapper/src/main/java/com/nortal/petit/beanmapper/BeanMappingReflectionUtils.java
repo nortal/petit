@@ -89,7 +89,6 @@ class BeanMappingReflectionUtils {
     }
 
     static PropertyDescriptor getPropertyDescriptor(Class<?> type, String name) {
-        // return BeanUtils.getPropertyDescriptor(type, name);
         try {
             PropertyDescriptor[] propertyDescriptors = Introspector.getBeanInfo(type).getPropertyDescriptors();
             for (PropertyDescriptor pd : propertyDescriptors) {
