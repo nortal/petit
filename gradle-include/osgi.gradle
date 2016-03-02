@@ -1,0 +1,46 @@
+task simplePar(type: Zip) {
+    group = "Distribution"
+    baseName = "dist/nortal-common-package"
+    extension = "par"
+    classifier = ""
+    description = "Builds package distribution archive (par) suitable for deploying in OSGi container"
+
+    //	ext.baseDir = "${baseName}-${project.version}";
+
+    from("etc/osgi/META-INF") {
+        include "MANIFEST.MF"
+        into "META-INF"
+    }
+
+    subprojects.each { subproject ->
+        into ("") { from subproject.jar			 }
+    }
+}
+
+
+task fullPar(type: Zip, dependsOn: simplePar) { zipTask ->
+    group = "Distribution"
+    baseName = "dist/petit-package-full"
+    classifier = ""
+    extension = "par"
+    description = "Builds package distribution archive (par) with all dependencies suitable for deploying in OSGi container"
+
+    from zipTree(simplePar.archivePath)
+
+    gradle.taskGraph.whenReady { taskGraph ->
+        if (taskGraph.hasTask(":${zipTask.name}")) {
+            def projectNames = rootProject.subprojects*.name
+            def artifacts = new HashSet()
+            subprojects.each { subproject ->
+                (subproject.configurations.runtime.resolvedConfiguration.resolvedArtifacts).each { artifact ->
+                    def dependency = artifact.moduleVersion.id
+                    if (!projectNames.contains(dependency.name)) {
+                        artifacts << artifact.file
+                    }
+                }
+            }
+
+            zipTask.from(artifacts) { into "" }
+        }
+    }
+}

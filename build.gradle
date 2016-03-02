@@ -1,21 +1,19 @@
-/**
- * Configuration that is applied only to JAVA subprojects
- */
-def javaProjects() {
-    return subprojects.findAll { new File(it.projectDir, "src").exists() }
+def script(s) {
+	return [from: project.rootDir.path + "/gradle-include/" + s + ".gradle"]
 }
 
-def nonJavaProjects() {
-  return subprojects.findAll { !new File(it.projectDir, "src").exists() }
-}
-
-configure(javaProjects()) {
+subprojects {
     apply plugin: 'java'
     apply plugin: 'osgi'
+    apply plugin: 'license'
+	apply script('jacoco')
+	apply script('maven')
+    
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier 'sources'
         from sourceSets.main.allSource
     }
+    
     artifacts {
         archives sourcesJar
     }
@@ -27,28 +25,12 @@ configure(javaProjects()) {
             instruction 'Bundle-Vendor', 'Nortal AS'
         }
     }
-}
-
-configure(nonJavaProjects()){
-  apply from: project.rootDir.path + "/gradle-include/depgraph.gradle"
-}
-
-
-subprojects {
-    apply from: project.rootDir.path + "/gradle-include/jacoco.gradle"
-    
-    apply plugin: 'license'
     
     license {
       header rootProject.file('LICENSE_HEADER')
       strictCheck true
     }
     
-    
-    if(project.file('src/main').exists()) {
-        apply from: project.rootDir.path + "/gradle-include/maven.gradle"
-    }
-
     group = 'com.nortal'
     version = '1.1.0-SNAPSHOT'
   
@@ -82,75 +64,26 @@ subprojects {
 		testCompile group: 'org.hamcrest', name: 'hamcrest-all', version:'1.3'
 		testCompile group: 'org.mockito', name: 'mockito-core', version:'1.10.19'
     }
-
-    
-    // no point building empty jars for modules with no sources
-    jar.onlyIf { project.file('src/main').exists() }
-    // Sources will be published as independant JAR
-    //jar.from project.file('src/main/java')
-}//END OF subprojects
+}
 
 //jar.doFirst {
 // ant.replace(file: project.rootDir "sonar-project.properties", token: "sonar.projectVersion", value: "2.0")
 //}
 
+apply script('artifactory')
+apply script('depgraph')
+apply script('osgi')
+
 task wrapper(type: Wrapper) { gradleVersion = '2.11' }
-
-task simplePar(type: Zip) {
-    group = "Distribution"
-    baseName = "dist/nortal-common-package"
-    extension = "par"
-    classifier = ""
-    description = "Builds package distribution archive (par) suitable for deploying in OSGi container"
-
-    //	ext.baseDir = "${baseName}-${project.version}";
-
-    from("etc/osgi/META-INF") {
-        include "MANIFEST.MF"
-        into "META-INF"
-    }
-
-    subprojects.each { subproject ->
-        into ("") { from subproject.jar			 }
-    }
-}
-
-
-task fullPar(type: Zip, dependsOn: simplePar) { zipTask ->
-    group = "Distribution"
-    baseName = "dist/petit-package-full"
-    classifier = ""
-    extension = "par"
-    description = "Builds package distribution archive (par) with all dependencies suitable for deploying in OSGi container"
-
-    from zipTree(simplePar.archivePath)
-
-    gradle.taskGraph.whenReady { taskGraph ->
-        if (taskGraph.hasTask(":${zipTask.name}")) {
-            def projectNames = rootProject.subprojects*.name
-            def artifacts = new HashSet()
-            subprojects.each { subproject ->
-                (subproject.configurations.runtime.resolvedConfiguration.resolvedArtifacts).each { artifact ->
-                    def dependency = artifact.moduleVersion.id
-                    if (!projectNames.contains(dependency.name)) {
-                        artifacts << artifact.file
-                    }
-                }
-            }
-
-            zipTask.from(artifacts) { into "" }
-        }
-    }
-}
-
-apply from: project.rootDir.path + "/gradle-include/depgraph.gradle"
 
 buildscript {
 	repositories {
 		mavenCentral()
+		jcenter()
 	}
 	
 	dependencies {
 		classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.7.0'
+		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.0.0"
 	}
 }

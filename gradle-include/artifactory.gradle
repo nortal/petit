@@ -1,0 +1,26 @@
+if (project.hasProperty('artifactoryUser')) {
+
+	apply plugin: "com.jfrog.artifactory"
+
+	artifactory {
+	    contextUrl = "${artifactoryContextUrl}"
+	    publish {
+	        repository {
+	            repoKey = "${artifactoryRepo}"
+	            username = "${artifactoryUser}"
+	            password = "${artifactoryPassword}"
+	            maven = true
+	        }       
+	    }
+	}
+	
+	subprojects {
+        apply plugin: "com.jfrog.artifactory"
+        publishing {
+	        artifactoryPublish {
+	        	publications ('maven')
+	        }
+        }
+	}
+}
+	
