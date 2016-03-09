@@ -15,11 +15,12 @@
  */
 package com.nortal.petit.core.util;
 
+import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.jdbc.core.StatementCreatorUtils;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import org.springframework.jdbc.core.SqlParameterValue;
-import org.springframework.jdbc.core.SqlTypeValue;
-import org.springframework.jdbc.core.StatementCreatorUtils;
+import java.sql.Types;
 
 public abstract class ArgPreparedStatementSetter {
     public static int setValues(PreparedStatement ps, Object[] args, int startIndex) throws SQLException {
@@ -31,7 +32,7 @@ public abstract class ArgPreparedStatementSetter {
                     SqlParameterValue paramValue = (SqlParameterValue) arg;
                     StatementCreatorUtils.setParameterValue(ps, j, paramValue, paramValue.getValue());
                 } else {
-                    StatementCreatorUtils.setParameterValue(ps, j, SqlTypeValue.TYPE_UNKNOWN, arg);
+                    StatementCreatorUtils.setParameterValue(ps, j, Types.OTHER, arg);
                 }
             }
         }
