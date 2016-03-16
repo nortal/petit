@@ -143,7 +143,7 @@ public class ResultSetHelper {
 
     public static Boolean getBoolean(ResultSet rs, ColumnPosition column) throws SQLException {
         String s = getString(rs, column);
-        return s == null ? null : Boolean.valueOf("1".equals(s));
+        return s == null ? null : Boolean.valueOf("1".equals(s) || "t".equalsIgnoreCase(s));
     }
 
     public static Double getDouble(ResultSet rs, ColumnPosition column) throws SQLException {
