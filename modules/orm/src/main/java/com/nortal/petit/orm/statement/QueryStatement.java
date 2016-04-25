@@ -90,7 +90,7 @@ public class QueryStatement<B> extends SimpleStatement<B> {
 
         // Vaja teha count päring
         Object[] params = getParams(null);
-        long elementCount = getJdbcTemplate().queryForLong(getStatementBuilder().countSql(), getParams(null));
+        long elementCount = getJdbcTemplate().queryForObject(getStatementBuilder().countSql(), Long.class, getParams(null));
         query.getQueryResult().setTotalCount(elementCount);
 
         if (query.getQueryResult().getTotalCount() > 0) {

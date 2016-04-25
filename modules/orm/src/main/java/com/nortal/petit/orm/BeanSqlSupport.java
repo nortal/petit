@@ -17,8 +17,7 @@ package com.nortal.petit.orm;
 
 import java.util.List;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-
+import com.nortal.petit.beanmapper.BeanMappings;
 import com.nortal.petit.converter.util.ResultSetHelper;
 import com.nortal.petit.core.SqlSupport;
 import com.nortal.petit.core.model.Id;
@@ -54,21 +53,6 @@ public class BeanSqlSupport {
 
     public <T> List<T> find(SqlBuilder builder, Class<T> clazz) {
         return sqlSupport.find(builder.getSql(), BeanMappers.get(clazz), builder.getParams());
-    }
-
-    public <T> List<Id<T>> findId(SqlBuilder sql) {
-        return findId(sql.getSql(), sql.getParams());
-    }
-
-    /**
-     * @param clazz
-     *            passed here to match type param of Id
-     */
-    public <T> List<Id<T>> findId(String sql, Object... args) {
-        ParameterizedRowMapper<Id<T>> rm = ResultSetHelper
-                .createSingleRowMapperFromStrategy(new ResultSetHelper.IdColumnRetrievalStrategy<T>());
-
-        return sqlSupport.find(sql, rm, args);
     }
 
 }

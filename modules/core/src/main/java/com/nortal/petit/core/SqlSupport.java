@@ -32,7 +32,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.ParameterizedSingleColumnRowMapper;
 import org.springframework.jdbc.support.JdbcUtils;
 
 import com.nortal.petit.core.dialect.SqlDialect;
@@ -258,26 +257,6 @@ public class SqlSupport {
         getJdbcTemplate().query(sql, args, rch);
     }
 
-    public <T> List<T> findSingleColumn(String sql, Class<T> klass, Object... args) {
-        return getJdbcTemplate().query(sql, createSingleColumnnMapper(klass), args);
-    }
-
-    public List<Long> findLong(SqlBuilder sql) {
-        return findLong(sql.getSql(), sql.getParams());
-    }
-
-    public List<Long> findLong(String sql, Object... args) {
-        return find(sql, createSingleColumnnMapper(Long.class), args);
-    }
-
-    public List<String> findString(SqlBuilder sql) {
-        return findString(sql.getSql(), sql.getParams());
-    }
-
-    public List<String> findString(String sql, Object... args) {
-        return find(sql, createSingleColumnnMapper(String.class), args);
-    }
-
     /**
      * Inserts data into db and returns id generated for row
      * 
@@ -291,10 +270,6 @@ public class SqlSupport {
      */
     public <B> B insertReturningId(String sql, String idColumn, Object... params) {
         return getSqlDialect().insertReturningId(getJdbcOperations(), sql, idColumn, params);
-    }
-
-    public static <T> ParameterizedSingleColumnRowMapper<T> createSingleColumnnMapper(Class<T> clazz) {
-        return ParameterizedSingleColumnRowMapper.newInstance(clazz);
     }
 
     public <T> List<T> queryForList(SqlBuilder sql, Class<T> clazz) {

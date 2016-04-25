@@ -45,8 +45,8 @@ subprojects {
     configurations { deployerJars }
     
     ext {
-        springVersion = '3.2.12.RELEASE'
-        testRuntimeSpringVersion = '3.2.12.RELEASE'
+        springVersion = '4.2.5.RELEASE'
+        testRuntimeSpringVersion = '4.2.5.RELEASE'
         commonsLangVersion = '3.3.2'
         guavaVersion = '18.0'
     }

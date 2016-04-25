@@ -23,8 +23,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-
 import com.nortal.petit.converter.Converter;
 import com.nortal.petit.converter.ConverterFactory;
 import com.nortal.petit.converter.ConverterGroup;
@@ -324,13 +322,4 @@ public class ResultSetHelper {
         }
     }
 
-    public static <T> ParameterizedRowMapper<T> createSingleRowMapperFromStrategy(
-            final ColumnRetrievalStrategy<T> strategy) {
-        return new ParameterizedRowMapper<T>() {
-            @Override
-            public T mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return strategy.getColumnValue(rs, new ColumnPosition(1));
-            }
-        };
-    }
 }
