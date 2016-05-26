@@ -13,15 +13,20 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.beanmapper;
+package com.nortal.petit.converter.util;
+
+import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
- * A Class->BeanMapping construction algorithm.
+ * A specification for ResultSet extraction. BeanMapper relies on a an instance
+ * of this interface for all the DB->Java conversion.
  * 
  * @author Aleksei Lissitsin
  * 
  */
-public interface BeanMappingFactory {
-    <B> BeanMapping<B> create(Class<B> type);
-    void addPropertyPlugin(PropertyPlugin plugin);
+public interface ResultSetReader {
+    <T> T get(Type type, ResultSet rs, String column) throws SQLException;
+    <T> T get(Type type, ResultSet rs, int index) throws SQLException;
 }

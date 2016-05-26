@@ -13,17 +13,8 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.converter;
+package com.nortal.petit.beanmapper;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-/**
- * @author Roman Tekhov
- */
-@Retention(RetentionPolicy.RUNTIME)
-public @interface GroupId {
-
-    String[] groups();
-
+public interface PropertyPlugin {
+	<B> Property<B, Object> decorate(Property<B, Object> prop);
 }

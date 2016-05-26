@@ -15,6 +15,8 @@
  */
 package com.nortal.petit.beanmapper;
 
+import java.lang.reflect.Type;
+
 /**
  * A T-typed property of a B-typed bean. It can read and write the property and
  * knows its type, name, and column mapping. It can be read-only (usually
@@ -24,7 +26,7 @@ package com.nortal.petit.beanmapper;
  * @author Aleksei Lissitsin
  */
 public interface Property<B, T> {
-    Class<T> type();
+    Type type();
 
     String name();
 

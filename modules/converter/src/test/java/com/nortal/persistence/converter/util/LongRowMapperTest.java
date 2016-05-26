@@ -15,7 +15,6 @@
  */
 package com.nortal.persistence.converter.util;
 
-import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -37,6 +36,7 @@ public class LongRowMapperTest {
     @Test
     public void mapNull() throws SQLException {
         ResultSet resultSet = Mockito.mock(ResultSet.class);
+        Mockito.doReturn(true).when(resultSet).wasNull();
 
         Assert.assertEquals(null, new LongRowMapper().mapRow(resultSet, 0));
         Assert.assertEquals(null, new LongRowMapper(3).mapRow(resultSet, 0));
@@ -46,8 +46,8 @@ public class LongRowMapperTest {
     @Test
     public void mapZero() throws SQLException {
         ResultSet resultSet = Mockito.mock(ResultSet.class);
-        Mockito.doReturn(BigDecimal.ZERO).when(resultSet).getBigDecimal(Matchers.eq(1));
-        Mockito.doReturn(BigDecimal.ZERO).when(resultSet).getBigDecimal(Matchers.eq("column-name"));
+        Mockito.doReturn(1).when(resultSet).findColumn(Matchers.eq("column-name"));
+        Mockito.doReturn(0L).when(resultSet).getLong(Matchers.eq(1));
 
         Assert.assertEquals(Long.valueOf(0), new LongRowMapper().mapRow(resultSet, 0));
         Assert.assertEquals(Long.valueOf(0), new LongRowMapper(1).mapRow(resultSet, 0));
@@ -57,8 +57,8 @@ public class LongRowMapperTest {
     @Test
     public void mapTen() throws SQLException {
         ResultSet resultSet = Mockito.mock(ResultSet.class);
-        Mockito.doReturn(BigDecimal.TEN).when(resultSet).getBigDecimal(Matchers.eq(1));
-        Mockito.doReturn(BigDecimal.TEN).when(resultSet).getBigDecimal(Matchers.eq("column-name"));
+        Mockito.doReturn(1).when(resultSet).findColumn(Matchers.eq("column-name"));
+        Mockito.doReturn(10L).when(resultSet).getLong(Matchers.eq(1));
 
         Assert.assertEquals(Long.valueOf(10), new LongRowMapper().mapRow(resultSet, 0));
         Assert.assertEquals(Long.valueOf(10), new LongRowMapper(1).mapRow(resultSet, 0));

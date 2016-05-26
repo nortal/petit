@@ -13,15 +13,20 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.beanmapper;
+package com.nortal.petit.converter.provider;
 
-/**
- * A Class->BeanMapping construction algorithm.
- * 
- * @author Aleksei Lissitsin
- * 
- */
-public interface BeanMappingFactory {
-    <B> BeanMapping<B> create(Class<B> type);
-    void addPropertyPlugin(PropertyPlugin plugin);
+public class CachingProvider<K, V> extends SimpleContainer<K, V> {
+	private Provider<K, V> delegate;
+	
+	public CachingProvider(Provider<K, V> delegate) {
+		this.delegate = delegate;
+	}
+
+	@Override
+	public V get(K key) {
+		if (!map.containsKey(key)) {
+			map.put(key, delegate.get(key));
+		}
+		return map.get(key);
+	}
 }

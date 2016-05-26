@@ -13,15 +13,15 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.beanmapper;
+package com.nortal.petit.converter.config;
 
-/**
- * A Class->BeanMapping construction algorithm.
- * 
- * @author Aleksei Lissitsin
- * 
- */
-public interface BeanMappingFactory {
-    <B> BeanMapping<B> create(Class<B> type);
-    void addPropertyPlugin(PropertyPlugin plugin);
+import java.lang.reflect.Type;
+
+import com.nortal.petit.converter.Converter;
+import com.nortal.petit.converter.provider.SimpleContainer;
+
+public class Converters extends SimpleContainer<Type, Converter<?, ?>> {
+	public void add(Converter<?, ?> converter) {
+		map.put(converter.getToType(), converter);
+	}
 }

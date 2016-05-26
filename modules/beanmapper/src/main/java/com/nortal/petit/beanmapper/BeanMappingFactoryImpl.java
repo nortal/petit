@@ -73,6 +73,8 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
 
 
     private boolean useAdditionalConfiguration = false;
+    
+    private List<PropertyPlugin> propertyPlugins = new ArrayList<>();
 
     public BeanMappingFactoryImpl() {
         String property = System.getProperty(BeanMapping.USE_ADDITIONAL_CONFIGURATION_KEY, "true");
@@ -86,7 +88,13 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
     public void useAdditionalConfiguration(boolean useAdditionalConfiguration) {
         this.useAdditionalConfiguration = useAdditionalConfiguration;
     }
-
+    
+	@Override
+	public void addPropertyPlugin(PropertyPlugin plugin) {
+		useAdditionalConfiguration(true);
+		propertyPlugins.add(plugin);
+	}
+    
     @Override
     public <B> BeanMapping<B> create(Class<B> type) {
         Map<String, Property<B, Object>> props = new LinkedHashMap<String, Property<B, Object>>();
@@ -119,13 +127,21 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
 
         for (PropertyDescriptor pd : pds) {
             Property<B, Object> prop = BeanMappingUtils.initProperty(props, pd.getName(), type);
+            prop = applyPlugins(prop);
             if (prop != null && prop.isIdProperty()) {
                 idProps.add(prop);
             }
         }
     }
 
-    private <B> Collection<PropertyDescriptor> findPropertyDescriptors(Class<B> clazz) {
+    private <B> Property<B, Object> applyPlugins(Property<B, Object> prop) {
+		for (PropertyPlugin plugin: propertyPlugins) {
+			prop = plugin.decorate(prop);
+		}
+		return prop;
+	}
+
+	private <B> Collection<PropertyDescriptor> findPropertyDescriptors(Class<B> clazz) {
         Set<PropertyDescriptor> result = new LinkedHashSet<PropertyDescriptor>();
 
         Collection<String> fieldNames = collectFieldNames(clazz);

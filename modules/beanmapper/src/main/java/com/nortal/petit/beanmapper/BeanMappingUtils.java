@@ -146,7 +146,10 @@ public class BeanMappingUtils {
 
     private static <B> Map<String, Property<B, Object>> getCompositeProperties(Property<B, Object> prop, List<Annotation> ans) {
         Map<String, Property<B, Object>> map = new LinkedHashMap<String, Property<B, Object>>();
-        BeanMapping<Object> beanMapping = BeanMappings.get(prop.type());
+        if (!(prop.type() instanceof Class<?>)) {
+            throw new RuntimeException("Wrong composite type");
+        }
+        BeanMapping<Object> beanMapping = BeanMappings.get((Class)prop.type());
         for (Property<Object, Object> p : beanMapping.props().values()) {
             Column column = BeanMappingReflectionUtils.getAttributeOverride(ans, p.name());
             CompositeProperty<B, Object, Object> cp = new CompositeProperty<B, Object, Object>(prop, p,

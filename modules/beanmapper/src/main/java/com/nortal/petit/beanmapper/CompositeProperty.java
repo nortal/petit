@@ -15,6 +15,9 @@
  */
 package com.nortal.petit.beanmapper;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 /**
  * A T-typed property of an S-typed subbean of a B-typed bean considered as a
  * direct property of the bean.
@@ -41,7 +44,12 @@ public class CompositeProperty<B, T, S> extends PropertySupport<B, T> {
         S subBeanObject = subBean.read(bean);
         if (subBeanObject == null) {
             try {
-                subBeanObject = subBean.type().newInstance();
+                Type type = subBean.type();
+                if (type instanceof ParameterizedType) {
+                    ParameterizedType pt = (ParameterizedType) type;
+                    type = pt.getRawType();
+                } 
+                subBeanObject = ((Class<S>)type).newInstance();
             } catch (InstantiationException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {

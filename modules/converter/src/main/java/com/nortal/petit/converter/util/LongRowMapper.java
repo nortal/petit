@@ -17,6 +17,8 @@ package com.nortal.petit.converter.util;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import com.nortal.petit.converter.columnreader.StandardStrategies;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -27,7 +29,7 @@ import java.sql.SQLException;
  */
 public class LongRowMapper implements RowMapper<Long> {
 
-    private final ResultSetHelper.ColumnPosition columnPosition;
+    private final ColumnPosition columnPosition;
 
     /**
      * Creates row mapper that reads value from the first column in result set.
@@ -37,11 +39,11 @@ public class LongRowMapper implements RowMapper<Long> {
     }
 
     public LongRowMapper(int columnIndex) {
-        columnPosition = new ResultSetHelper.ColumnPosition(columnIndex);
+        columnPosition = new ColumnPosition(columnIndex);
     }
 
     public LongRowMapper(String columnName) {
-        columnPosition = new ResultSetHelper.ColumnPosition(columnName);
+        columnPosition = new ColumnPosition(columnName);
     }
 
     /**
@@ -50,6 +52,6 @@ public class LongRowMapper implements RowMapper<Long> {
      */
     @Override
     public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return ResultSetHelper.getLong(rs, columnPosition);
+        return StandardStrategies.getLong(rs, columnPosition.getIndex(rs));
     }
 }

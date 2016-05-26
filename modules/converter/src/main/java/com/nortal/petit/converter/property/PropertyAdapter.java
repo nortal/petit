@@ -13,15 +13,11 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.beanmapper;
+package com.nortal.petit.converter.property;
 
-/**
- * A Class->BeanMapping construction algorithm.
- * 
- * @author Aleksei Lissitsin
- * 
- */
-public interface BeanMappingFactory {
-    <B> BeanMapping<B> create(Class<B> type);
-    void addPropertyPlugin(PropertyPlugin plugin);
+import com.nortal.petit.beanmapper.Property;
+import com.nortal.petit.converter.Converter;
+
+public interface PropertyAdapter<F, T> extends Converter<F, T> {
+	T convert(F value, Property<?, T> property);
 }

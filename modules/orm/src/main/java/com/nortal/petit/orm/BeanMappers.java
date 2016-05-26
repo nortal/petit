@@ -17,6 +17,7 @@ package com.nortal.petit.orm;
 
 import com.nortal.petit.beanmapper.BeanMappings;
 import com.nortal.petit.beanmapper.ext.ExtendedBeanMappings;
+import com.nortal.petit.converter.config.ConverterConfig;
 
 /**
  * @author Aleksei Lissitsin
@@ -25,7 +26,7 @@ import com.nortal.petit.beanmapper.ext.ExtendedBeanMappings;
 public abstract class BeanMappers {
     public static <B> BeanMapper<B> get(Class<B> beanClass) {
         return new BeanMapper<B>(BeanMappings.get(beanClass),
-                new DefaultResultSetReader());
+                ConverterConfig.instance().getPropertyReader());
     }
 
     /**
@@ -38,6 +39,6 @@ public abstract class BeanMappers {
     public static <B> BeanMapper<B> extended(Class<B> beanClass,
             String... extProps) {
         return new BeanMapper<B>(ExtendedBeanMappings.get(beanClass, extProps),
-                new DefaultResultSetReader());
+        		ConverterConfig.instance().getPropertyReader());
     }
 }

@@ -13,15 +13,24 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.beanmapper;
+package com.nortal.petit.converter.util;
 
-/**
- * A Class->BeanMapping construction algorithm.
- * 
- * @author Aleksei Lissitsin
- * 
- */
-public interface BeanMappingFactory {
-    <B> BeanMapping<B> create(Class<B> type);
-    void addPropertyPlugin(PropertyPlugin plugin);
+import org.springframework.jdbc.core.RowMapper;
+
+import com.nortal.petit.converter.columnreader.ColumnReader;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class ColumnReaderRowMapper<T> implements RowMapper<T> {
+    private final ColumnReader<T> strategy;
+
+    public ColumnReaderRowMapper(ColumnReader<T> strategy) {
+        this.strategy = strategy;
+    }
+
+    @Override
+    public T mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return strategy.getColumnValue(rs, 1);
+    }
 }

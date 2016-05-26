@@ -13,18 +13,20 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.beanmapper;
+package com.nortal.petit.converter.property;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-/**
- * A specification for ResultSet extraction. BeanMapper relies on a an instance
- * of this interface for all the DB->Java conversion.
- * 
- * @author Aleksei Lissitsin
- * 
- */
-public interface ResultSetReader {
-    <T> T get(Class<T> clazz, ResultSet rs, String column) throws SQLException;
+import com.nortal.petit.beanmapper.PropertyReader;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD})
+@SuppressWarnings("rawtypes")
+public @interface DbAware {
+	Class<? extends PropertyAdapter> readAdapter();
+	Class<? extends PropertyAdapter> writeAdapter();
+	Class<? extends PropertyReader> propertyReader();
 }

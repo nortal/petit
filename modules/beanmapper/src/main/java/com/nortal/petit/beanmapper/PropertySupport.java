@@ -15,6 +15,8 @@
  */
 package com.nortal.petit.beanmapper;
 
+import java.lang.reflect.Type;
+
 /**
  * An abstract class for reducing boilerplate code in property implementations
  * 
@@ -23,13 +25,13 @@ package com.nortal.petit.beanmapper;
  */
 public abstract class PropertySupport<B, T> implements Property<B, T> {
     protected String name;
-    protected Class<T> type;
+    protected Type type;
     protected String column;
     protected boolean readOnly = false;
     protected boolean idProperty = false;
     protected PropertyConfiguration configuration;
 
-    public Class<T> type() {
+    public Type type() {
         return type;
     }
 

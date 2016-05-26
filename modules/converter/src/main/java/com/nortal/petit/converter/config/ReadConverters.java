@@ -13,26 +13,25 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.converter;
+package com.nortal.petit.converter.config;
 
 import java.lang.reflect.Type;
 
-/**
- * @author Aleksei Lissitsin <aleksei.lissitsin@webmedia.ee>
- */
-public interface Converter<F, T> {
+import com.nortal.petit.converter.CompositeConverter;
+import com.nortal.petit.converter.Converter;
 
-    /**
-     * This method converts a given value of the given type. It is able to
-     * convert Java objects (Long, boolean, Date, Day), as well as domain
-     * objects
-     * 
-     * @param value
-     *            The converted value of the object
-     */
-    T convert(F value);
+public class ReadConverters extends Converters {
 
-    Type getFromType();
-
-    Type getToType();
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public Converter<?, ?> get(Type to) {
+        Converter<?, ?> converter = map.get(to);
+        if (converter != null) {
+            Converter<?, ?> converter2 = get(converter.getFromType());
+            if (converter2 != null) {
+                return new CompositeConverter(converter2, converter);
+            }
+        }
+        return converter;
+    }
 }

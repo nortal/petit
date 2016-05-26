@@ -34,6 +34,10 @@ public class BeanMappingCacheTest {
 			counter++;
 			return essence.create(type);
 		}
+		@Override
+		public void addPropertyPlugin(PropertyPlugin plugin) {
+			//Do nothing
+		}
 	}
 	
 	private FactoryWrapper init(boolean cached, boolean useSysProp) {

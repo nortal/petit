@@ -20,7 +20,7 @@ import java.sql.SQLException;
 
 /**
  * A RowMapper relying on an underlying BeanMapping and a provided
- * ResultSetReader.
+ * PropertyReader.
  * 
  * @author Aleksei Lissitsin
  * 
@@ -28,12 +28,12 @@ import java.sql.SQLException;
 public class BeanMapper<B> {
 
     private BeanMapping<B> mapping;
+    
+    private PropertyReader propertyReader;
 
-    private ResultSetReader resultSetReader;
-
-    public BeanMapper(BeanMapping<B> mapping, ResultSetReader resultSetReader) {
+    public BeanMapper(BeanMapping<B> mapping, PropertyReader propertyReader) {
         this.mapping = mapping;
-        this.resultSetReader = resultSetReader;
+        this.propertyReader = propertyReader;
     }
 
     public BeanMapping<B> mapping() {
@@ -52,7 +52,7 @@ public class BeanMapper<B> {
 
     private void mapProperty(ResultSet rs, B o, Property<B, Object> p) throws SQLException {
         try {
-            p.write(o, resultSetReader.get(p.type(), rs, p.column()));
+            p.write(o, propertyReader.get(rs, p));
         } catch (RuntimeException e) {
             throw new RuntimeException(getErrorMsg(p, o), e);
         } catch (SQLException e) {

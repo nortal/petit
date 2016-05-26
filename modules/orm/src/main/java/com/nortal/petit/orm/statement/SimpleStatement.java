@@ -21,9 +21,9 @@ import org.springframework.util.Assert;
 import com.google.common.base.Function;
 import com.nortal.petit.beanmapper.BeanMapping;
 import com.nortal.petit.beanmapper.BeanMappings;
+import com.nortal.petit.converter.config.ConverterConfig;
 import com.nortal.petit.orm.BeanMapper;
 import com.nortal.petit.orm.BeanMappers;
-import com.nortal.petit.orm.DefaultResultSetReader;
 
 /**
  * @author Lauri Lättemäe (lauri.lattemae@nortal.com)
@@ -45,7 +45,7 @@ public abstract class SimpleStatement<B> {
 
         this.jdbcTemplate = jdbcTemplate;
         this.statementBuilder = statementBuilder;
-        this.beanMapper = new BeanMapper<B>(beanMapping, DefaultResultSetReader.instance());
+        this.beanMapper = new BeanMapper<B>(beanMapping, ConverterConfig.instance().getPropertyReader());
 
         this.statementBuilder.table(getMapping().table());
     }

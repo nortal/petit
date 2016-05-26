@@ -27,8 +27,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 
 import com.nortal.petit.beanmapper.RestrictedBeanMapping;
+import com.nortal.petit.converter.config.ConverterConfig;
 import com.nortal.petit.orm.BeanMapper;
-import com.nortal.petit.orm.DefaultResultSetReader;
 import com.nortal.petit.orm.statement.clause.Limit;
 import com.nortal.petit.orm.statement.clause.Order;
 import com.nortal.petit.orm.statement.clause.OrderSql;
@@ -51,7 +51,7 @@ public class LoadStatement<B> extends SimpleStatement<B> implements SelectClause
     public LoadStatement<B> select(String... properties) {
         getStatementBuilder().select(properties);
         updateMapper(new BeanMapper<B>(new RestrictedBeanMapping<B>(getMapping(), properties),
-                DefaultResultSetReader.instance()));
+                ConverterConfig.instance().getPropertyReader()));
         return this;
     }
 

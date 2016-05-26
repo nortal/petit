@@ -17,9 +17,9 @@ package com.nortal.petit.orm.statement;
 
 import com.google.common.base.Function;
 import com.nortal.petit.beanmapper.BeanMapping;
-import com.nortal.petit.converter.Converter;
-import com.nortal.petit.converter.ConverterFactory;
-import com.nortal.petit.converter.ConverterGroup;
+import com.nortal.petit.beanmapper.Property;
+import com.nortal.petit.converter.config.ConverterConfig;
+import com.nortal.petit.converter.property.PropertyWriter;
 
 /**
  * @author Aleksei Lissitsin
@@ -40,19 +40,12 @@ public class MappingParamFunction<B> implements Function<String, Object> {
 
     @Override
     public Object apply(String p) {
-        return convert(mapping.props().get(p).read(bean));
-    }
-
-    protected Object convert(Object o) {
+        Property<B, Object> property = mapping.props().get(p);
+        PropertyWriter propertyWriter = ConverterConfig.instance().getPropertyWriter();
+        Object o = property.read(bean);
         if (o == null) {
-            return null;
+        	return null;
         }
-        Converter<Object, String> converter = (Converter<Object, String>) ConverterFactory.getConverter(
-                ConverterGroup.DEFAULT_GROUP, o.getClass(), String.class);
-        if (converter != null) {
-            return converter.convert(o);
-        }
-        return o;
+		return propertyWriter.convert(o, property);
     }
-
 }

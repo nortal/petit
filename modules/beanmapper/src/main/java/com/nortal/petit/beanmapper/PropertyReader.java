@@ -15,13 +15,9 @@
  */
 package com.nortal.petit.beanmapper;
 
-/**
- * A Class->BeanMapping construction algorithm.
- * 
- * @author Aleksei Lissitsin
- * 
- */
-public interface BeanMappingFactory {
-    <B> BeanMapping<B> create(Class<B> type);
-    void addPropertyPlugin(PropertyPlugin plugin);
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public interface PropertyReader {
+    <T> T get(ResultSet rs, Property<?, T> p) throws SQLException;
 }

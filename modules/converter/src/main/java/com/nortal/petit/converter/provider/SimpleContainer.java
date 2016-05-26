@@ -13,15 +13,30 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.beanmapper;
+package com.nortal.petit.converter.provider;
 
-/**
- * A Class->BeanMapping construction algorithm.
- * 
- * @author Aleksei Lissitsin
- * 
- */
-public interface BeanMappingFactory {
-    <B> BeanMapping<B> create(Class<B> type);
-    void addPropertyPlugin(PropertyPlugin plugin);
+import java.util.HashMap;
+import java.util.Map;
+
+public class SimpleContainer<K, V> implements Container<K, V> {
+	protected Map<K, V> map = new HashMap<>();
+
+	@Override
+	public V get(K key) {
+		return map.get(key);
+	}
+	
+	public Map<K, V> getAll() {
+		return map;
+	}
+
+	@Override
+	public void put(K key, V value) {
+		map.put(key, value);
+	}
+
+	@Override
+	public void putAll(Map<K, V> values) {
+		map.putAll(values);
+	}
 }

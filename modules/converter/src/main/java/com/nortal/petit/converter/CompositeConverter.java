@@ -15,31 +15,29 @@
  */
 package com.nortal.petit.converter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.lang.reflect.Type;
 
-/**
- * @author Roman Tekhov
- */
-public class ConverterGroup {
+public class CompositeConverter<F, M, T> implements Converter<F, T> {
+    private final Converter<F, M> c1;
+    private final Converter<M, T> c2;
 
-    public final static String DEFAULT_GROUP = "default";
-
-    private final List<Converter<?, ?>> converters = new ArrayList<Converter<?, ?>>();
-
-    public void add(Converter<?, ?> converter) {
-        converters.add(converter);
+    public CompositeConverter(Converter<F, M> c1, Converter<M, T> c2) {
+        this.c1 = c1;
+        this.c2 = c2;
     }
 
-    public void addAll(ConverterGroup group) {
-        addAll(group.getAll());
+	@Override
+    public T convert(F value) {
+        return c2.convert(c1.convert(value));
     }
 
-    public void addAll(List<Converter<?, ?>> converters) {
-        this.converters.addAll(converters);
+    @Override
+    public Type getFromType() {
+        return c1.getFromType();
     }
 
-    public List<Converter<?, ?>> getAll() {
-        return converters;
+    @Override
+    public Type getToType() {
+        return c2.getToType();
     }
 }

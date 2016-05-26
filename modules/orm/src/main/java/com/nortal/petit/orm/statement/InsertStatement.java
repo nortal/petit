@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -163,7 +164,7 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
             if (keys != null) {
                 try {
                     RowMapperResultSetExtractor<Map<String, Object>> rse = new RowMapperResultSetExtractor<Map<String, Object>>(
-                            new InsertKeyColumnRowMapper(idProperty.type()), 1);
+                            new InsertKeyColumnRowMapper(TypeUtils.getRawType(idProperty.type(), null)), 1);
                     keyHolder.getKeyList().addAll(rse.extractData(keys));
                 } finally {
                     JdbcUtils.closeResultSet(keys);
@@ -173,9 +174,9 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
     }
 
     private final class InsertKeyColumnRowMapper extends ColumnMapRowMapper {
-        private Class<Object> idColumnTypeClass;
+        private Class<?> idColumnTypeClass;
         
-        public InsertKeyColumnRowMapper(Class<Object> type) {
+        public InsertKeyColumnRowMapper(Class<?> type) {
             this.idColumnTypeClass = type;
         }
 

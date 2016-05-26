@@ -13,28 +13,35 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.orm;
+package com.nortal.petit.converter.util;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.nortal.petit.beanmapper.ResultSetReader;
-import com.nortal.petit.converter.util.ResultSetHelper;
+public final class ColumnPosition {
+    public final boolean isNamed;
+    private String name;
+    private int index; // 1-based
 
-/**
- * @author Aleksei Lissitsin
- * 
- */
-public class DefaultResultSetReader implements ResultSetReader {
-
-    private static DefaultResultSetReader instance = new DefaultResultSetReader();
-
-    public static ResultSetReader instance() {
-        return instance;
+    public ColumnPosition(String columnName) {
+        isNamed = true;
+        this.name = columnName;
     }
 
-    @Override
-    public <T> T get(Class<T> clazz, ResultSet rs, String column) throws SQLException {
-        return ResultSetHelper.get(clazz, rs, column);
+    public ColumnPosition(int index) {
+        isNamed = false;
+        this.index = index;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+    
+    public int getIndex(ResultSet rs) throws SQLException {
+        return index == 0 ? rs.findColumn(name) : index;
     }
 }

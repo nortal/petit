@@ -2,6 +2,7 @@ ext.artifactId = 'converter'
 
 dependencies {
 	compile project(":petit-core")
+	compile project(":petit-beanmapper")
 }
 
 
