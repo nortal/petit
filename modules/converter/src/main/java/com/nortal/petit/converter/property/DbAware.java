@@ -26,9 +26,13 @@ import com.nortal.petit.beanmapper.PropertyReader;
 @Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD})
 @SuppressWarnings("rawtypes")
 public @interface DbAware {
-	Class<? extends PropertyAdapter> readAdapter();
-	Class<? extends PropertyAdapter> writeAdapter();
-	Class<? extends PropertyReader> propertyReader();
-	Class<? extends PropertyAdapterFactory> readAdapterFactory();
-	Class<? extends PropertyAdapterFactory> writeAdapterFactory();
+	Class<? extends PropertyAdapter> readAdapter() default UNDEFINED.class;
+	Class<? extends PropertyAdapter> writeAdapter() default UNDEFINED.class;
+	Class<? extends PropertyReader> propertyReader() default UNDEFINED.class;
+	Class<? extends PropertyAdapterFactory> readAdapterFactory() default UNDEFINED.class;
+	Class<? extends PropertyAdapterFactory> writeAdapterFactory() default UNDEFINED.class;
+	
+	static interface UNDEFINED extends PropertyAdapter, PropertyReader, PropertyAdapterFactory {
+		
+	}
 }

@@ -165,13 +165,13 @@ public class BeanMappingReflectionUtils {
     }
     
     @SuppressWarnings("unchecked")
-    public static <B extends Annotation> B getAnnotationRecursively(List<Annotation> ans, Class<B> annotationType) {
-        if (ans != null) {
+    public static <B extends Annotation> B getAnnotationRecursively(List<Annotation> ans, Class<B> annotationType, int depth) {
+        if (ans != null && depth > 0) {
             for (Annotation a : ans) {
                 if (a.annotationType().isAssignableFrom(annotationType)) {
                     return (B) a;
                 } else {
-                	B b = getAnnotationRecursively(Arrays.asList(a.annotationType().getAnnotations()), annotationType);
+                	B b = getAnnotationRecursively(Arrays.asList(a.annotationType().getAnnotations()), annotationType, depth - 1);
                 	if (b != null) {
                 		return b;
                 	}

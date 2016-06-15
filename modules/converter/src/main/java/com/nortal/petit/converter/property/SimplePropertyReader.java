@@ -71,8 +71,8 @@ public class SimplePropertyReader implements PropertyReader {
 
 	private <T> T readWithAdapter(ResultSet rs, PropertyAdapter<?, T> adapter, Property<?, T> prop) throws SQLException {
 		@SuppressWarnings("unchecked")
-		PropertyAdapter<Object, T> propertyAdapter = (PropertyAdapter<Object, T>) propertyAdapters.get(prop.type());
-		Object object = rsr.get(adapter.getFromType(), rs, prop.column());
+		PropertyAdapter<Object, T> propertyAdapter = (PropertyAdapter<Object, T>) adapter;
+		Object object = rsr.get(propertyAdapter.getFromType(), rs, prop.column());
 		return propertyAdapter.convert(object, prop);
 	}
 }

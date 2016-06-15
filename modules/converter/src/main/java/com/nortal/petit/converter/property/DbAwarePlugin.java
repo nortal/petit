@@ -23,6 +23,7 @@ import java.util.Map;
 import com.nortal.petit.beanmapper.BeanMappingReflectionUtils;
 import com.nortal.petit.beanmapper.Property;
 import com.nortal.petit.beanmapper.PropertyPlugin;
+import com.nortal.petit.converter.property.DbAware.UNDEFINED;
 
 public class DbAwarePlugin implements PropertyPlugin {
 
@@ -31,32 +32,36 @@ public class DbAwarePlugin implements PropertyPlugin {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <B> Property<B, Object> decorate(Property<B, Object> prop, List<Annotation> ans) {
-		DbAware dbAware = BeanMappingReflectionUtils.getAnnotationRecursively(ans, DbAware.class);
+		DbAware dbAware = BeanMappingReflectionUtils.getAnnotationRecursively(ans, DbAware.class, 2);
 		if (dbAware != null) {
 			DbAwareProperty<B, Object> dbAwareProperty = new DbAwareProperty<>(prop);
-			if (dbAware.propertyReader() != null) {
+			if (isDefined(dbAware.propertyReader())) {
 				dbAwareProperty.setPropertyReader(getInstance(dbAware.propertyReader()));
 			}
 
-			if (dbAware.readAdapter() != null) {
+			if (isDefined(dbAware.readAdapter())) {
 				dbAwareProperty.setReadAdapter(getInstance(dbAware.readAdapter()));
 			}
 
-			if (dbAware.readAdapterFactory() != null) {
+			if (isDefined(dbAware.readAdapterFactory())) {
 				dbAwareProperty.setReadAdapter(getInstance(dbAware.readAdapterFactory()).get(prop));
-			}
+			} 
 
-			if (dbAware.writeAdapter() != null) {
+			if (isDefined(dbAware.writeAdapter())) {
 				dbAwareProperty.setWriteAdapter(getInstance(dbAware.writeAdapter()));
 			}
 			
-			if (dbAware.writeAdapterFactory() != null) {
+			if (isDefined(dbAware.writeAdapterFactory())) {
 				dbAwareProperty.setWriteAdapter(getInstance(dbAware.writeAdapterFactory()).get(prop));
 			}
 			
 			return dbAwareProperty;
 		}
 		return prop;
+	}
+	
+	private boolean isDefined(Class<?> cl) {
+		return !cl.equals(UNDEFINED.class);
 	}
 
 	@SuppressWarnings("unchecked")
