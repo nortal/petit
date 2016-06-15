@@ -128,6 +128,9 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
         for (PropertyDescriptor pd : pds) {
             Property<B, Object> prop = BeanMappingUtils.initProperty(props, pd.getName(), type);
             prop = applyPlugins(prop);
+            if (prop != null) {
+            	props.put(prop.name(), prop);
+            }
             if (prop != null && prop.isIdProperty()) {
                 idProps.add(prop);
             }
