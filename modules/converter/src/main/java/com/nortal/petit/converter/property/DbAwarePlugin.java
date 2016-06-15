@@ -15,9 +15,12 @@
  */
 package com.nortal.petit.converter.property;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.nortal.petit.beanmapper.BeanMappingReflectionUtils;
 import com.nortal.petit.beanmapper.Property;
 import com.nortal.petit.beanmapper.PropertyPlugin;
 
@@ -27,8 +30,8 @@ public class DbAwarePlugin implements PropertyPlugin {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <B> Property<B, Object> decorate(Property<B, Object> prop) {
-		DbAware dbAware = prop.getConfiguration().getAnnotation(DbAware.class);
+	public <B> Property<B, Object> decorate(Property<B, Object> prop, List<Annotation> ans) {
+		DbAware dbAware = BeanMappingReflectionUtils.getAnnotationRecursively(ans, DbAware.class);
 		if (dbAware != null) {
 			DbAwareProperty<B, Object> dbAwareProperty = new DbAwareProperty<>(prop);
 			if (dbAware.propertyReader() != null) {
@@ -39,9 +42,18 @@ public class DbAwarePlugin implements PropertyPlugin {
 				dbAwareProperty.setReadAdapter(getInstance(dbAware.readAdapter()));
 			}
 
+			if (dbAware.readAdapterFactory() != null) {
+				dbAwareProperty.setReadAdapter(getInstance(dbAware.readAdapterFactory()).get(prop));
+			}
+
 			if (dbAware.writeAdapter() != null) {
 				dbAwareProperty.setWriteAdapter(getInstance(dbAware.writeAdapter()));
 			}
+			
+			if (dbAware.writeAdapterFactory() != null) {
+				dbAwareProperty.setWriteAdapter(getInstance(dbAware.writeAdapterFactory()).get(prop));
+			}
+			
 			return dbAwareProperty;
 		}
 		return prop;

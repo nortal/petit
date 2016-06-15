@@ -15,6 +15,9 @@
  */
 package com.nortal.petit.beanmapper;
 
+import java.lang.annotation.Annotation;
+import java.util.List;
+
 public interface PropertyPlugin {
-	<B> Property<B, Object> decorate(Property<B, Object> prop);
+	<B> Property<B, Object> decorate(Property<B, Object> prop, List<Annotation> ans);
 }

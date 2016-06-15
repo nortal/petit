@@ -34,7 +34,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
  * @author Aleksei Lissitsin
  * 
  */
-class BeanMappingReflectionUtils {
+public class BeanMappingReflectionUtils {
 
     private static Column getAttributeOverride(Class<?> type, String name) {
         AttributeOverride ao = type.getAnnotation(AttributeOverride.class);
@@ -158,6 +158,23 @@ class BeanMappingReflectionUtils {
             for (Annotation a : ans) {
                 if (a.annotationType().isAssignableFrom(annotationType)) {
                     return (B) a;
+                }
+            }
+        }
+        return null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static <B extends Annotation> B getAnnotationRecursively(List<Annotation> ans, Class<B> annotationType) {
+        if (ans != null) {
+            for (Annotation a : ans) {
+                if (a.annotationType().isAssignableFrom(annotationType)) {
+                    return (B) a;
+                } else {
+                	B b = getAnnotationRecursively(Arrays.asList(a.annotationType().getAnnotations()), annotationType);
+                	if (b != null) {
+                		return b;
+                	}
                 }
             }
         }

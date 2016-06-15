@@ -15,20 +15,8 @@
  */
 package com.nortal.petit.converter.property;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.nortal.petit.beanmapper.Property;
 
-import com.nortal.petit.beanmapper.PropertyReader;
-
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD})
-@SuppressWarnings("rawtypes")
-public @interface DbAware {
-	Class<? extends PropertyAdapter> readAdapter();
-	Class<? extends PropertyAdapter> writeAdapter();
-	Class<? extends PropertyReader> propertyReader();
-	Class<? extends PropertyAdapterFactory> readAdapterFactory();
-	Class<? extends PropertyAdapterFactory> writeAdapterFactory();
+public interface PropertyAdapterFactory {
+	<F, T, P> PropertyAdapter<F, T> get(Property<?, P> prop);
 }

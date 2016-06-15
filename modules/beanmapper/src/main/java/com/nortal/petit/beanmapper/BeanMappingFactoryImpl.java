@@ -16,6 +16,7 @@
 package com.nortal.petit.beanmapper;
 
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -69,7 +70,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author Aleksei Lissitsin
  * 
  */
-public class BeanMappingFactoryImpl implements BeanMappingFactory {
+public class BeanMappingFactoryImpl implements BeanMappingFactory, PropertyPlugin {
 
 
     private boolean useAdditionalConfiguration = false;
@@ -91,7 +92,6 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
     
 	@Override
 	public void addPropertyPlugin(PropertyPlugin plugin) {
-		useAdditionalConfiguration(true);
 		propertyPlugins.add(plugin);
 	}
     
@@ -126,23 +126,12 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
         Collection<PropertyDescriptor> pds = findPropertyDescriptors(type);
 
         for (PropertyDescriptor pd : pds) {
-            Property<B, Object> prop = BeanMappingUtils.initProperty(props, pd.getName(), type);
-            prop = applyPlugins(prop);
-            if (prop != null) {
-            	props.put(prop.name(), prop);
-            }
+            Property<B, Object> prop = BeanMappingUtils.initProperty(props, pd.getName(), type, this);
             if (prop != null && prop.isIdProperty()) {
                 idProps.add(prop);
             }
         }
     }
-
-    private <B> Property<B, Object> applyPlugins(Property<B, Object> prop) {
-		for (PropertyPlugin plugin: propertyPlugins) {
-			prop = plugin.decorate(prop);
-		}
-		return prop;
-	}
 
 	private <B> Collection<PropertyDescriptor> findPropertyDescriptors(Class<B> clazz) {
         Set<PropertyDescriptor> result = new LinkedHashSet<PropertyDescriptor>();
@@ -171,4 +160,12 @@ public class BeanMappingFactoryImpl implements BeanMappingFactory {
 
         return fieldNames;
     }
+
+	@Override
+	public <B> Property<B, Object> decorate(Property<B, Object> prop, List<Annotation> ans) {
+		for (PropertyPlugin plugin: propertyPlugins) {
+			prop = plugin.decorate(prop, ans);
+		}
+		return prop;
+	}
 }

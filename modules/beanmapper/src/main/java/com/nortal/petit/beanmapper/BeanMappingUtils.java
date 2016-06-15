@@ -43,7 +43,7 @@ public class BeanMappingUtils {
      * @param name
      * @param type
      */
-    public static <B> Property<B, Object> initProperty(Map<String, Property<B, Object>> props, String name, Class<B> type) {
+    public static <B> Property<B, Object> initProperty(Map<String, Property<B, Object>> props, String name, Class<B> type, PropertyPlugin plugin) {
         PropertyDescriptor pd = BeanMappingReflectionUtils.getPropertyDescriptor(type, name);
 
         if (!isPropertyReadableAndWritable(pd)) {
@@ -77,16 +77,18 @@ public class BeanMappingUtils {
                         ((ParameterizedType) pd.getReadMethod().getGenericReturnType()).getActualTypeArguments());
             }
         }
-
+        
+        Property<B, Object> property = plugin.decorate(prop, ans);
+        
         if (BeanMappingReflectionUtils.getAnnotation(ans, Embedded.class) != null) {
-            props.putAll(getCompositeProperties(prop, ans));
+            props.putAll(getCompositeProperties(property, ans));
         } else {
-            props.put(prop.name(), prop);
+            props.put(property.name(), property);
         }
         
         return prop;
     }
-
+    
     /**
      * Adds an extended property to the BeanMapping. 
      * 
