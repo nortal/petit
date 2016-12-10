@@ -7,8 +7,8 @@ Petit builds upon Spring Framework's JDBC abstraction framework relieving the de
 
 Dependencies
 ------------
-Petit depends on:
-- Java 7+
+Petit 1.2+ depends on:
+- Java 8+
 - Spring framework 4.2.5+
 
 Installation
