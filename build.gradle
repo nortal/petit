@@ -1,4 +1,4 @@
-def script(s) {
+def localScript(s) {
 	return [from: project.rootDir.path + "/gradle-include/" + s + ".gradle"]
 }
 
@@ -6,8 +6,8 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'osgi'
     apply plugin: 'license'
-	apply script('jacoco')
-	apply script('maven')
+	apply localScript('jacoco')
+	apply localScript('maven')
     
     task sourcesJar(type: Jar, dependsOn: classes) {
         classifier 'sources'
@@ -69,11 +69,11 @@ subprojects {
 // ant.replace(file: project.rootDir "sonar-project.properties", token: "sonar.projectVersion", value: "2.0")
 //}
 
-apply script('artifactory')
-apply script('depgraph')
-apply script('osgi')
+apply localScript('artifactory')
+apply localScript('depgraph')
+apply localScript('osgi')
 
-task wrapper(type: Wrapper) { gradleVersion = '2.11' }
+task wrapper(type: Wrapper) { gradleVersion = '3.2.1' }
 
 buildscript {
 	repositories {
