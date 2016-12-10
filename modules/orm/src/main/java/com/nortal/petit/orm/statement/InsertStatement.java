@@ -42,8 +42,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.nortal.petit.beanmapper.Property;
 import com.nortal.petit.core.util.ArgPreparedStatementSetter;
 
@@ -218,7 +216,7 @@ public class InsertStatement<B> extends BeansStatement<B, InsertStatement<B>> {
 
         public InterceptorCalls() {
             this.table = getMapping().table();
-            this.columns = Iterables.toArray(Lists.transform(setBy, getPropertyNameMapper(true)), String.class);
+            this.columns = setBy.stream().map(getPropertyNameMapper(true)).toArray(String[]::new);
         }
 
         private BeanDataHolder findDataHolder(B bean) {

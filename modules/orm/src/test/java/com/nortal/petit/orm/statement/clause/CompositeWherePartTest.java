@@ -15,12 +15,10 @@
  */
 package com.nortal.petit.orm.statement.clause;
 
+import java.util.function.Function;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.google.common.base.Functions;
-import com.nortal.petit.orm.statement.clause.Where;
-import com.nortal.petit.orm.statement.clause.WherePart;
 
 /**
  * @author Aleksei Lissitsin
@@ -29,7 +27,7 @@ import com.nortal.petit.orm.statement.clause.WherePart;
 public class CompositeWherePartTest {
 
     private void myAssert(String expected, WherePart part) {
-        Assert.assertEquals(expected, part.sql(Functions.<String> identity()));
+        Assert.assertEquals(expected, part.sql(Function.identity()));
     }
 
     @Test

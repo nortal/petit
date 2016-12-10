@@ -3,7 +3,6 @@ ext.artifactId = 'orm'
 dependencies {
 	compile project(":petit-beanmapper")
 	compile project(":petit-converter")
-	compile group: 'com.google.guava', name: 'guava', version: guavaVersion
 
 	testCompile 'org.springframework:spring-test:' + springVersion
 	testCompile 'org.springframework:spring-expression:3.2.1.RELEASE'

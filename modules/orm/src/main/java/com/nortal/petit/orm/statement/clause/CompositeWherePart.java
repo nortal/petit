@@ -18,10 +18,9 @@ package com.nortal.petit.orm.statement.clause;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.google.common.base.Function;
 
 /**
  * @author Aleksei Lissitsin

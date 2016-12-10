@@ -16,14 +16,13 @@
 package com.nortal.petit.orm.statement;
 
 import java.util.Arrays;
-import java.util.List;
 
-import com.google.common.collect.Lists;
-import com.nortal.petit.beanmapper.BeanMapping;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+
+import com.nortal.petit.beanmapper.BeanMapping;
 
 /**
  * @author Lauri Lättemäe (lauri.lattemae@nortal.com)
@@ -72,10 +71,10 @@ public class UpdateStatement<B> extends BeansStatement<B, UpdateStatement<B>> {
         MappingParamFunction<B> paramFunction = new MappingParamFunction<B>(getMapping());
         for (B bean : getBeans()) {
             paramFunction.setBean(bean);
-            List<String> columns = Lists.transform(setBy, getPropertyNameMapper(true));
-            List<Object> params = Lists.transform(setBy, paramFunction);
+            String[] columns = setBy.stream().map(getPropertyNameMapper(true)).toArray(String[]::new);
+            Object[] params = setBy.stream().map(paramFunction).toArray();
             Object id = mapping.id() != null ? mapping.id().read(bean) : null;
-            getStatementBuilder().getInterceptor().afterUpdate(mapping.table(), id, params.toArray(), null, columns.toArray(new String[columns.size()]));
+            getStatementBuilder().getInterceptor().afterUpdate(mapping.table(), id, params, null, columns);
         }
     }
 

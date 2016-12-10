@@ -15,14 +15,12 @@
  */
 package com.nortal.petit.orm.statement.clause;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Iterables;
+import java.util.function.Function;
 
 public class OrderSql implements SqlPart {
     private List<Order> orderList = new ArrayList<Order>();
@@ -73,13 +71,8 @@ public class OrderSql implements SqlPart {
             return "";
         }
 
-        StringBuilder result = new StringBuilder("ORDER BY ");
-        Joiner.on(", ").appendTo(
-                result,
-                Iterables.transform(orderList, new SqlPartFunction(propertyNameMapper != null ? propertyNameMapper
-                        : Functions.<String> identity())));
-
-        return result.toString();
+        Function<String, String> mapper = propertyNameMapper != null ? propertyNameMapper : Function.identity();
+        return orderList.stream().map(o -> o.sql(mapper)).collect(joining(", ", "ORDER BY ", ""));
     }
 
     // ================ Static initializers =====================

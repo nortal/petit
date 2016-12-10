@@ -15,12 +15,11 @@
  */
 package com.nortal.petit.orm.statement;
 
+import java.util.function.Function;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.base.Function;
-import com.nortal.petit.orm.statement.OracleStatementBuilder;
-import com.nortal.petit.orm.statement.StatementBuilder;
 import com.nortal.petit.orm.statement.clause.Where;
 
 /**
@@ -37,14 +36,8 @@ public class StatementBuilderTest {
         return sb().table("my_table").alias("mya").select("bla1", "bla2", "bla3").where("bla1", 2);
     }
 
-    private Function<String, String> upper = new Function<String, String>() {
-
-        @Override
-        public String apply(String input) {
-            return input.toUpperCase();
-        }
-    };
-
+    private Function<String, String> upper = String::toUpperCase;
+    
     @Test
     public void testLoad() {
         Assert.assertEquals("SELECT mya.bla1, mya.bla2, mya.bla3 FROM my_table mya", sb().table("my_table")
@@ -68,6 +61,10 @@ public class StatementBuilderTest {
         Assert.assertEquals(
                 "SELECT mya.bla1, mya.bla2, mya.bla3 FROM my_table mya WHERE bla1 = ? GROUP BY bla3 ORDER BY bla2 ASC, bla1 DESC",
                 createLoadSb1().group("bla3").asc("bla2").desc("bla1").getLoad());
+        
+        Assert.assertEquals("SELECT * FROM my_table WHERE bla1 = ?", sb().table("my_table").where("bla1", 2).getLoad());
+        
+        Assert.assertEquals("SELECT mya.* FROM my_table mya WHERE bla1 = ?", sb().table("my_table").alias("mya").where("bla1", 2).getLoad());
 
         StatementBuilder sb1 = createLoadSb1();
         sb1.setPropertyNameMapper(upper);

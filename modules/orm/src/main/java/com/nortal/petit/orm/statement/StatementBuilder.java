@@ -15,18 +15,16 @@
  */
 package com.nortal.petit.orm.statement;
 
+import static java.util.stream.Collectors.joining;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.google.common.base.Function;
-import com.google.common.base.Functions;
-import com.google.common.base.Joiner;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.nortal.petit.beanmapper.BeanMapping;
 import com.nortal.petit.beanmapper.Property;
 import com.nortal.petit.orm.BeanPropertyConverter;
@@ -66,7 +64,7 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
 
     private SqlPart where;
 
-    private Function<String, String> propertyNameMapper = Functions.<String> identity();
+    private Function<String, String> propertyNameMapper = Function.identity();
 
     private StatementInterceptor interceptor;
 
@@ -122,24 +120,16 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
     }
     
     public String getSelectClause() {
-        StringBuilder clause = new StringBuilder("SELECT ");
+        Stream<String> stream;
         if (select != null && !select.isEmpty()) {
-            List<String> selectBy = new ArrayList<String>();
-            if (StringUtils.isNotEmpty(alias)) {
-                for (String item : select) {
-                    selectBy.add(alias + "." + propertyNameMapper.apply(item));
-                }
-            } else {
-                selectBy = Lists.newArrayList(Iterables.transform(select, propertyNameMapper));
-            }
-            clause.append(StringUtils.join(selectBy, ", "));
+          stream = select.stream().map(propertyNameMapper);
         } else {
-            if (StringUtils.isNotEmpty(alias)) {
-                clause.append(alias).append(".");
-            }
-            clause.append("*");
+          stream = Stream.of("*");
         }
-        return clause.toString();
+        if (StringUtils.isNotEmpty(alias)) {
+          stream = stream.map(s -> alias + "." + s);
+        }
+        return stream.collect(joining(", ", "SELECT ", ""));
     }
 
     // ##SELECT##
@@ -282,12 +272,13 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
             params.addAll(where.params(paramMapper));
         }
 
-        return FluentIterable.from(params).transform(converter).toArray(Object.class);
+        return params.stream().map(converter).toArray();
     }
 
     public String getLoad() {
-        return Joiner.on(" ").skipNulls()
-                .join(getSelectClause(), getFromClause(), getWhereClause(), getGroupClause(), getOrderClause());
+        return Stream.of(getSelectClause(), getFromClause(), getWhereClause(), getGroupClause(), getOrderClause())
+                     .filter(t -> t != null)
+                     .collect(joining(" "));
     }
 
     public abstract String limitSql(Limit limit);
@@ -300,7 +291,7 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
 
     public String getInsert() {
         StringBuilder expression = new StringBuilder("INSERT INTO ").append(table).append(" (");
-        Joiner.on(", ").appendTo(expression, Iterables.transform(setBy, propertyNameMapper));
+        expression.append(setBy.stream().map(propertyNameMapper).collect(joining(", ")));
         expression.append(") VALUES (").append(StringUtils.repeat("?", ", ", setBy.size())).append(")");
         return expression.toString();
     }
@@ -311,12 +302,7 @@ public abstract class StatementBuilder implements SelectClause<StatementBuilder>
             expression.append(alias).append(" ");
         }
         expression.append("SET ");
-        if (setBy.size() > 1) {
-            Joiner.on("=?, ").appendTo(expression, Iterables.transform(setBy, propertyNameMapper));
-            expression.append("=? ");
-        } else {
-            expression.append(propertyNameMapper.apply(setBy.get(0))).append("=? ");
-        }
+        expression.append(setBy.stream().map(propertyNameMapper).collect(joining("=?, ", "", "=? ")));
         expression.append(getWhereClause());
         return expression.toString();
     }

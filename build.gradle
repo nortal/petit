@@ -48,7 +48,6 @@ subprojects {
         springVersion = '4.2.5.RELEASE'
         testRuntimeSpringVersion = '4.2.5.RELEASE'
         commonsLangVersion = '3.3.2'
-        guavaVersion = '18.0'
     }
 
     dependencies {

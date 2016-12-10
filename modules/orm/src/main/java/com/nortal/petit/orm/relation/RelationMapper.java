@@ -19,12 +19,12 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.Assert;
 
-import com.google.common.base.Function;
 import com.nortal.petit.beanmapper.BeanMapping;
 import com.nortal.petit.beanmapper.BeanMappings;
 import com.nortal.petit.beanmapper.Property;
@@ -75,7 +75,7 @@ public class RelationMapper<T, R> implements RelationInfo<T, R> {
 		Assert.notNull(this.targetProperty,
 				"RelationMapper.construct: targetProperty is mandatory");
 
-		targetId = new PropertyFunction<T, Object>(this.targetProperty);
+		targetId = this.targetProperty::read;
 
 		// Init target mapping property
 		if (StringUtils.isEmpty(relationProperty)) {
@@ -87,7 +87,7 @@ public class RelationMapper<T, R> implements RelationInfo<T, R> {
 		Assert.notNull(this.relationProperty,
 				"RelationMapper.construct: relationProperty is mandatory");
 
-		relationId = new PropertyFunction<R, Object>(this.relationProperty);
+		relationId = this.relationProperty::read;
 
 		if (StringUtils.isNotEmpty(targetMapping)) {
 			PropertyDescriptor pd = BeanUtils.getPropertyDescriptor(target,

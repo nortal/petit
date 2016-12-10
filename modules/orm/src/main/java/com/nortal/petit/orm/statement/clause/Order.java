@@ -17,8 +17,7 @@ package com.nortal.petit.orm.statement.clause;
 
 import java.util.Arrays;
 import java.util.List;
-
-import com.google.common.base.Function;
+import java.util.function.Function;
 
 public class Order implements SqlPart {
     private String property;

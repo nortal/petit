@@ -18,10 +18,10 @@ package com.nortal.petit.orm.statement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.springframework.util.Assert;
 
-import com.google.common.base.Function;
 import com.nortal.petit.beanmapper.BeanMapping;
 import com.nortal.petit.beanmapper.Property;
 
@@ -42,11 +42,7 @@ class StatementUtil {
 
     static <B> Function<String, String> getPropertyNameMapper(
             final BeanMapping<B> mapping, final boolean includeReadOnly) {
-        return new Function<String, String>() {
-            public String apply(String name) {
-                return getColumn(mapping.props(), name, includeReadOnly);
-            }
-        };
+        return name -> getColumn(mapping.props(), name, includeReadOnly);
     }
 
     private static <B> String getColumn(Map<String, Property<B, Object>> props,

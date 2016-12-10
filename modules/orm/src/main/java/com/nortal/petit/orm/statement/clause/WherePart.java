@@ -15,7 +15,7 @@
  */
 package com.nortal.petit.orm.statement.clause;
 
-import com.google.common.base.Functions;
+import java.util.function.Function;
 
 /**
  * @author Aleksei Lissitsin
@@ -33,6 +33,6 @@ public abstract class WherePart implements SqlPart {
 
     @Override
     public String toString() {
-        return sql(Functions.<String> identity());
+        return sql(Function.identity());
     }
 }

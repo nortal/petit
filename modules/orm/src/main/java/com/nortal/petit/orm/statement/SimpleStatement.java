@@ -15,10 +15,11 @@
  */
 package com.nortal.petit.orm.statement;
 
+import java.util.function.Function;
+
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.util.Assert;
 
-import com.google.common.base.Function;
 import com.nortal.petit.beanmapper.BeanMapping;
 import com.nortal.petit.beanmapper.BeanMappings;
 import com.nortal.petit.converter.config.ConverterConfig;

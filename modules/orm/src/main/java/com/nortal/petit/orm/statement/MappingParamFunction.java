@@ -15,7 +15,8 @@
  */
 package com.nortal.petit.orm.statement;
 
-import com.google.common.base.Function;
+import java.util.function.Function;
+
 import com.nortal.petit.beanmapper.BeanMapping;
 import com.nortal.petit.beanmapper.Property;
 import com.nortal.petit.converter.config.ConverterConfig;
