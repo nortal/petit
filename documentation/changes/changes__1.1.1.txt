@@ -1,0 +1,22 @@
+Changes between versions 1.0.6 - 1.1.1
+
+* Logging is done via slf4j instead of log4j. Please ship log4j yourself or use any other logging implementation.
+* petit-beanmapper does not depend on Spring anymore
+* Spring updated to 4.2.5
+* petit-converter module refactored. The behaviour can now also be fine-tuned via PropertyReaders and PropertyWriters.
+Converters are still supported too. However, their registration has changed and is now done via ConverterConfig.
+For example, the following method can be called on BaseDao class load:
+
+  private static void addConverters() {
+	Converters readConverters = ConverterConfig.instance().getReadConverters();
+	readConverters.add(new NumericRangeFromStringConverter());
+	readConverters.add(new UidObjectFromStringConverter());
+	...
+	
+	Converters writeConverters = ConverterConfig.instance().getWriteConverters();
+	writeConverters.add(new NumericRangeToStringConverter());
+	writeConverters.add(new TimestampRangeToStringConverter());
+	...
+  }
+  
+* BeanMappingFactoryImpl now supports plugins that can decorate Property's. See DbAwarePlugin for an example.

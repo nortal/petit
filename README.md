@@ -9,7 +9,7 @@ Dependencies
 ------------
 Petit depends on:
 - Java 7+
-- Spring framework 3.2.12
+- Spring framework 4.2.5+
 
 Installation
 ------------
