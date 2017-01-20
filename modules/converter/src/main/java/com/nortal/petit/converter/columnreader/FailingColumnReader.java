@@ -18,10 +18,19 @@ package com.nortal.petit.converter.columnreader;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public interface ColumnReader<T> {
-    T getColumnValue(ResultSet rs, int index) throws SQLException;
-    
-    default T getColumnValue(ResultSet rs, String column) throws SQLException {
-      return getColumnValue(rs, rs.findColumn(column));
-    }
+public class FailingColumnReader implements ColumnReader<Object> {
+
+  @Override
+  public Object getColumnValue(ResultSet rs, int index) throws SQLException {
+    throw ex("index " + index);
+  }
+
+  @Override
+  public Object getColumnValue(ResultSet rs, String column) throws SQLException {
+    throw ex("column " + column);
+  }
+  
+  private ConversionException ex(String subject) {
+    return new ConversionException("Could not find conversion strategy for " + subject);
+  }
 }

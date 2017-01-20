@@ -20,12 +20,14 @@ import java.lang.reflect.Type;
 import com.nortal.petit.beanmapper.PropertyReader;
 import com.nortal.petit.converter.columnreader.ColumnReader;
 import com.nortal.petit.converter.columnreader.ConverterColumnReaders;
+import com.nortal.petit.converter.columnreader.FailingColumnReader;
 import com.nortal.petit.converter.columnreader.StandardStrategies;
 import com.nortal.petit.converter.property.PropertyAdapter;
 import com.nortal.petit.converter.property.PropertyWriter;
 import com.nortal.petit.converter.property.SimplePropertyReader;
 import com.nortal.petit.converter.property.SimplePropertyWriter;
 import com.nortal.petit.converter.provider.CachingProvider;
+import com.nortal.petit.converter.provider.ChainProvider;
 import com.nortal.petit.converter.provider.Container;
 import com.nortal.petit.converter.provider.SimpleContainer;
 import com.nortal.petit.converter.util.ResultSetReader;
@@ -52,7 +54,9 @@ public class ConverterConfig {
 	private WriteConverters writeConverters;
 	private Container<Type, PropertyAdapter<?, ?>> writePropertyAdapters = new SimpleContainer<>();
 	
-	private PropertyWriter propertyWriter;
+	private ColumnReader<?> catchAllReader = new FailingColumnReader();
+	
+  private PropertyWriter propertyWriter;
     
     public ConverterConfig() {
         readConverters = new ReadConverters();
@@ -62,7 +66,11 @@ public class ConverterConfig {
         
         ConverterColumnReaders converterStrategies = new ConverterColumnReaders(readConverters, readers);
         
-        resultSetReader = new SimpleResultSetReader(new CachingProvider<>(converterStrategies));
+        ChainProvider<Type, ColumnReader<?>> strategies = new ChainProvider<>(
+                new CachingProvider<>(converterStrategies), 
+                (t) -> catchAllReader);
+        
+        resultSetReader = new SimpleResultSetReader(strategies);
         
         propertyReader = new SimplePropertyReader(resultSetReader, propertyReaders, readPropertyAdapters);
         
@@ -113,4 +121,8 @@ public class ConverterConfig {
     public void setPropertyWriter(PropertyWriter propertyWriter) {
 		this.propertyWriter = propertyWriter;
 	}
+
+    public void setCatchAllReader(ColumnReader<?> catchAllReader) {
+      this.catchAllReader = catchAllReader;
+    }
 }

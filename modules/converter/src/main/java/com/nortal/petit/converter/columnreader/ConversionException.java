@@ -15,13 +15,9 @@
  */
 package com.nortal.petit.converter.columnreader;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+public class ConversionException extends RuntimeException {
 
-public interface ColumnReader<T> {
-    T getColumnValue(ResultSet rs, int index) throws SQLException;
-    
-    default T getColumnValue(ResultSet rs, String column) throws SQLException {
-      return getColumnValue(rs, rs.findColumn(column));
-    }
+  public ConversionException(String message) {
+    super(message);
+  }
 }

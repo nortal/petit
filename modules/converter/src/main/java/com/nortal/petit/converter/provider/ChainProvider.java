@@ -13,15 +13,24 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.converter.columnreader;
+package com.nortal.petit.converter.provider;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+public class ChainProvider<K, V> implements Provider<K, V> {
+  private Provider<K, V>[] providers;
 
-public interface ColumnReader<T> {
-    T getColumnValue(ResultSet rs, int index) throws SQLException;
-    
-    default T getColumnValue(ResultSet rs, String column) throws SQLException {
-      return getColumnValue(rs, rs.findColumn(column));
+  @SafeVarargs
+  public ChainProvider(Provider<K, V>... providers) {
+    this.providers = providers;
+  }
+
+  @Override
+  public V get(K key) {
+    for (Provider<K, V> provider : providers) {
+      V v = provider.get(key);
+      if (v != null) {
+        return v;
+      }
     }
+    return null;
+  }
 }

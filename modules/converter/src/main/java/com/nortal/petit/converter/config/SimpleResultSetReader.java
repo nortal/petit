@@ -30,8 +30,11 @@ public class SimpleResultSetReader implements ResultSetReader {
         this.strategies = strategies;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
     public <T> T get(Type type, ResultSet rs, String column) throws SQLException {
-        return get(type, rs, rs.findColumn(column));
+        ColumnReader<?> strategy = strategies.get(type);
+        return (T) strategy.getColumnValue(rs, column);
 
     }
 
