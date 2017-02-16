@@ -41,6 +41,13 @@ public class ConverterConfig {
         }
         return instance;
     }
+
+    /**
+     * Restores defaults, creating new configuration instance.
+     */
+    public static void reset() {
+        instance = null;
+    }
     
     private ReadConverters readConverters = new ReadConverters();
     private Container<Type, ColumnReader<?>> readers;

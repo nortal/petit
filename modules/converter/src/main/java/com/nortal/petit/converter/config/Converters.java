@@ -16,12 +16,54 @@
 package com.nortal.petit.converter.config;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import com.nortal.petit.converter.Converter;
+import com.nortal.petit.converter.provider.Container;
+import com.nortal.petit.converter.provider.Provider;
 import com.nortal.petit.converter.provider.SimpleContainer;
 
-public class Converters extends SimpleContainer<Type, Converter<?, ?>> {
+
+public abstract class Converters implements Container<Type, Converter<?, ?>> {
+
+	private final SimpleContainer<Type, Converter<?, ?>> staticProvider = new SimpleContainer<>();
+	private final List<Provider<Type, Converter<?, ?>>> factories = new ArrayList<>(1);
+
+
+    protected abstract Type getTypeOnBean(Converter<?, ?> converter);
+
 	public void add(Converter<?, ?> converter) {
-		map.put(converter.getToType(), converter);
+		put(getTypeOnBean(converter), converter);
+	}
+
+	public void addConverterFactory(Provider<Type, Converter<?, ?>> converterFactory) {
+		factories.add(converterFactory);
+	}
+
+	@Override
+	public Converter<?, ?> get(Type type) {
+		Converter<?, ?> converter = staticProvider.get(type);
+		if (converter != null) {
+			return converter;
+		}
+		for (Provider<Type, Converter<?, ?>> factory : factories) {
+            Converter<?, ?> factoryProvided = factory.get(type);
+            if (factoryProvided != null) {
+                return factoryProvided;
+            }
+        }
+		return null;
+	}
+
+	@Override
+	public void put(Type type, Converter<?, ?> converter) {
+		staticProvider.put(converter.getToType(), converter);
+	}
+
+	@Override
+	public void putAll(Map<Type, Converter<?, ?>> converters) {
+		staticProvider.putAll(converters);
 	}
 }

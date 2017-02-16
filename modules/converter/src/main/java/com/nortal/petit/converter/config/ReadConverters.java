@@ -22,12 +22,17 @@ import com.nortal.petit.converter.Converter;
 
 public class ReadConverters extends Converters {
 
+    @Override
+    protected Type getTypeOnBean(Converter<?, ?> converter) {
+        return converter.getToType();
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Converter<?, ?> get(Type to) {
-        Converter<?, ?> converter = map.get(to);
+        Converter<?, ?> converter = super.get(to);
         if (converter != null) {
-            Converter<?, ?> converter2 = get(converter.getFromType());
+            Converter<?, ?> converter2 = super.get(converter.getFromType());
             if (converter2 != null) {
                 return new CompositeConverter(converter2, converter);
             }
