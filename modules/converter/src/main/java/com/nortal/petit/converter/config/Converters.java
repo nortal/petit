@@ -16,12 +16,56 @@
 package com.nortal.petit.converter.config;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 
 import com.nortal.petit.converter.Converter;
+import com.nortal.petit.converter.provider.Container;
+import com.nortal.petit.converter.provider.Provider;
 import com.nortal.petit.converter.provider.SimpleContainer;
 
-public class Converters extends SimpleContainer<Type, Converter<?, ?>> {
+
+public abstract class Converters implements Container<Type, Converter<?, ?>> {
+
+	private final SimpleContainer<Type, Converter<?, ?>> staticProvider = new SimpleContainer<>();
+	private Provider<Type, Converter<?, ?>> factory = ($) -> null;
+
+
+	protected abstract Type getKey(Converter<?, ?> converter);
+
 	public void add(Converter<?, ?> converter) {
-		map.put(converter.getToType(), converter);
+		put(getKey(converter), converter);
+	}
+
+	/**
+	 * Sets dynamic provider of Converters. It will be used in addition to converters that are already
+	 * mapped with {@link #add(Converter)} method.
+	 *
+	 * @param converterFactory must be not null
+	 */
+	public void setConverterProvider(Provider<Type, Converter<?, ?>> converterFactory) {
+		factory = converterFactory;
+	}
+
+	@Override
+	public Converter<?, ?> get(Type type) {
+		Converter<?, ?> converter = staticProvider.get(type);
+		if (converter != null) {
+			return converter;
+		}
+		Converter<?, ?> dynamicallyProvided = factory.get(type);
+		if (dynamicallyProvided != null) {
+			return dynamicallyProvided;
+		}
+		return null;
+	}
+
+	@Override
+	public void put(Type type, Converter<?, ?> converter) {
+		staticProvider.put(converter.getToType(), converter);
+	}
+
+	@Override
+	public void putAll(Map<Type, Converter<?, ?>> converters) {
+		staticProvider.putAll(converters);
 	}
 }

@@ -22,10 +22,10 @@ import com.nortal.petit.converter.CompositeConverter;
 import com.nortal.petit.converter.Converter;
 
 public class WriteConverters extends Converters {
-	
+
 	@Override
-	public void add(Converter<?, ?> converter) {
-		map.put(converter.getFromType(), converter);
+	protected Type getKey(Converter<?, ?> converter) {
+		return converter.getFromType();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -41,7 +41,7 @@ public class WriteConverters extends Converters {
 	}
 	
 	private Converter<?, ?> getConverter(Type type) {
-		Converter<?, ?> converter = map.get(type);
+		Converter<?, ?> converter = super.get(type);
 		if (converter != null) {
 			return converter;
 		}
@@ -73,7 +73,7 @@ public class WriteConverters extends Converters {
 	}
 
 	private Converter<?, ?> getForInterface(Class<?> type) {
-		Converter<?, ?> converter = map.get(type);
+		Converter<?, ?> converter = super.get(type);
 		if (converter != null) {
 			return converter;
 		}
