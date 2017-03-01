@@ -13,30 +13,33 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.petit.converter.config;
+package com.nortal.persistence.converter.config.fixture.types;
 
-import java.lang.reflect.Type;
 
-import com.nortal.petit.converter.CompositeConverter;
+import com.nortal.petit.converter.BaseFromStringConverter;
 import com.nortal.petit.converter.Converter;
 
-public class ReadConverters extends Converters {
 
-    @Override
-    protected Type getKey(Converter<?, ?> converter) {
-        return converter.getToType();
+public class CustomLongWrapperA {
+
+    private Long val;
+
+    private CustomLongWrapperA(Long val) {
+        this.val = val;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Override
-    public Converter<?, ?> get(Type to) {
-        Converter<?, ?> converter = super.get(to);
-        if (converter != null) {
-            Converter<?, ?> converter2 = get(converter.getFromType());
-            if (converter2 != null) {
-                return new CompositeConverter(converter2, converter);
+    Long getVal() {
+        return val;
+    }
+
+    public static Converter<String, CustomLongWrapperA> createConverterFromString() {
+        return new BaseFromStringConverter<CustomLongWrapperA>(CustomLongWrapperA.class) {
+            @Override
+            protected CustomLongWrapperA convertNotBlank(String value) {
+                return new CustomLongWrapperA(Long.parseLong(value));
             }
-        }
-        return converter;
+        };
     }
+
+
 }

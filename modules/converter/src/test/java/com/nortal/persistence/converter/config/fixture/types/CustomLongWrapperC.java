@@ -13,18 +13,18 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.persistence.converter.config.fixture;
+package com.nortal.persistence.converter.config.fixture.types;
 
 
-import com.nortal.petit.converter.BaseFromStringConverter;
+import com.nortal.petit.converter.BaseConverter;
 import com.nortal.petit.converter.Converter;
 
 
-public class CustomPropertyTypeOne {
+public class CustomLongWrapperC {
 
     private Long val;
 
-    CustomPropertyTypeOne(Long val) {
+    private CustomLongWrapperC(Long val) {
         this.val = val;
     }
 
@@ -32,13 +32,15 @@ public class CustomPropertyTypeOne {
         return val;
     }
 
-    public static Converter<String, CustomPropertyTypeOne> createConverter() {
-        return new BaseFromStringConverter<CustomPropertyTypeOne>(CustomPropertyTypeOne.class) {
+    public static Converter<CustomLongWrapperB, CustomLongWrapperC> createConverterFromWrapperB() {
+        return new BaseConverter<CustomLongWrapperB, CustomLongWrapperC>
+                (CustomLongWrapperB.class, CustomLongWrapperC.class) {
             @Override
-            protected CustomPropertyTypeOne convertNotBlank(String value) {
-                return new CustomPropertyTypeOne(Long.parseLong(value));
+            public CustomLongWrapperC convert(CustomLongWrapperB value) {
+                return new CustomLongWrapperC(value.getVal());
             }
         };
     }
+
 
 }

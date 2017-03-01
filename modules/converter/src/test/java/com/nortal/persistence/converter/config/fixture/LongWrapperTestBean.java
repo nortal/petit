@@ -15,30 +15,16 @@
  */
 package com.nortal.persistence.converter.config.fixture;
 
+import com.nortal.persistence.converter.config.fixture.types.CustomLongWrapperC;
 
-import com.nortal.petit.converter.BaseFromStringConverter;
-import com.nortal.petit.converter.Converter;
+public class LongWrapperTestBean {
+    private CustomLongWrapperC longValue;
 
-
-public class CustomPropertyTypeOne {
-
-    private Long val;
-
-    CustomPropertyTypeOne(Long val) {
-        this.val = val;
+    public CustomLongWrapperC getLongValue() {
+        return longValue;
     }
 
-    public Long getVal() {
-        return val;
+    public void setLongValue(CustomLongWrapperC longValue) {
+        this.longValue = longValue;
     }
-
-    public static Converter<String, CustomPropertyTypeOne> createConverter() {
-        return new BaseFromStringConverter<CustomPropertyTypeOne>(CustomPropertyTypeOne.class) {
-            @Override
-            protected CustomPropertyTypeOne convertNotBlank(String value) {
-                return new CustomPropertyTypeOne(Long.parseLong(value));
-            }
-        };
-    }
-
 }

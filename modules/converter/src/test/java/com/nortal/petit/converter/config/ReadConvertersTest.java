@@ -13,25 +13,25 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.nortal.persistence.converter.config;
+package com.nortal.petit.converter.config;
 
-import com.nortal.persistence.converter.config.fixture.ConversionTestBean;
-import com.nortal.persistence.converter.config.fixture.CustomPropertyTypeOne;
-import com.nortal.persistence.converter.config.fixture.CustomPropertyTypeTwo;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Arrays;
+
+import com.nortal.persistence.converter.config.fixture.*;
+import com.nortal.persistence.converter.config.fixture.types.CustomLongWrapperA;
+import com.nortal.persistence.converter.config.fixture.types.CustomLongWrapperB;
+import com.nortal.persistence.converter.config.fixture.types.CustomLongWrapperC;
 import com.nortal.petit.beanmapper.BeanMapper;
 import com.nortal.petit.beanmapper.BeanMapping;
 import com.nortal.petit.beanmapper.BeanMappings;
 import com.nortal.petit.converter.columnreader.ConversionException;
-import com.nortal.petit.converter.config.ConverterConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Arrays;
 
 /**
  * This test verifies that registered {@link com.nortal.petit.converter.config.ReadConverters} are properly
@@ -47,12 +47,7 @@ public class ReadConvertersTest {
     @Test
     public void notAddingReadConverters_failsTryingToReadProperty() throws SQLException {
         ResultSet resultSet = createMockingResultSet();
-        try {
-            createMapper().mapRow(resultSet, 1);
-            Assert.fail(); // expecting exception
-        } catch (RuntimeException e) {
-            Assert.assertEquals(ConversionException.class, e.getCause().getClass());
-        }
+        verifyConversionExceptionIsThrown(ConversionTestBean.class, resultSet);
     }
 
     @Test
@@ -91,6 +86,36 @@ public class ReadConvertersTest {
         verifyFieldsReadFromMockResultSet();
     }
 
+    @Test
+    public void readConvertersAreComposed() throws SQLException {
+        ResultSet resultSet = Mockito.mock(ResultSet.class);
+        mockResultSetColumn(resultSet, 2, "long_value", "12345");
+
+        // no conversion strategy for column long_value
+        verifyConversionExceptionIsThrown(LongWrapperTestBean.class, resultSet);
+
+        ConverterConfig.reset(); // clear off cached providers
+
+        /*
+          Converters that should add up to composite converter:
+              { String -> `WrapperA` -> 'WrapperB' -> `WrapperC` }
+        */
+        ConverterConfig.instance().getReadConverters().add(CustomLongWrapperC.createConverterFromWrapperB());
+        ConverterConfig.instance().getReadConverters().add(CustomLongWrapperB.createConverterFromWrapperA());
+        ConverterConfig.instance().getReadConverters().add(CustomLongWrapperA.createConverterFromString());
+
+        LongWrapperTestBean conversionTestBean = readOneRow(LongWrapperTestBean.class, resultSet);
+        Assert.assertEquals(12345, conversionTestBean.getLongValue().getVal().longValue());
+    }
+
+    private <T> void verifyConversionExceptionIsThrown(Class<T> beanType, ResultSet resultSet) {
+        try {
+            readOneRow(beanType, resultSet);
+            Assert.fail(); // expecting exception
+        } catch (Exception e) {
+            Assert.assertEquals(ConversionException.class, e.getCause().getClass());
+        }
+    }
 
     private void verifyFieldsReadFromMockResultSet() {
         ResultSet resultSet = createMockingResultSet();
@@ -125,6 +150,12 @@ public class ReadConvertersTest {
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private <T> T readOneRow(Class<T> beanClass, ResultSet rs) throws SQLException {
+        BeanMapping<T> mapping = BeanMappings.get(beanClass);
+        BeanMapper<T> mapper = new BeanMapper<>(mapping, ConverterConfig.instance().getPropertyReader());
+        return mapper.mapRow(rs, 1);
     }
 
     private BeanMapper<ConversionTestBean> createMapper() {

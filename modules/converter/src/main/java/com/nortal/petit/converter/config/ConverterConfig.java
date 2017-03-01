@@ -45,7 +45,7 @@ public class ConverterConfig {
     /**
      * Restores defaults, creating new configuration instance.
      */
-    public static void reset() {
+    static void reset() {
         instance = null;
     }
     
