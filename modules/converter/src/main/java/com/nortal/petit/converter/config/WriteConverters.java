@@ -24,7 +24,7 @@ import com.nortal.petit.converter.Converter;
 public class WriteConverters extends Converters {
 
 	@Override
-	protected Type getTypeOnBean(Converter<?, ?> converter) {
+	protected Type getKey(Converter<?, ?> converter) {
 		return converter.getFromType();
 	}
 

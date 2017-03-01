@@ -16,8 +16,6 @@
 package com.nortal.petit.converter.config;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import com.nortal.petit.converter.Converter;
@@ -29,17 +27,23 @@ import com.nortal.petit.converter.provider.SimpleContainer;
 public abstract class Converters implements Container<Type, Converter<?, ?>> {
 
 	private final SimpleContainer<Type, Converter<?, ?>> staticProvider = new SimpleContainer<>();
-	private final List<Provider<Type, Converter<?, ?>>> factories = new ArrayList<>(1);
+	private Provider<Type, Converter<?, ?>> factory = ($) -> null;
 
 
-    protected abstract Type getTypeOnBean(Converter<?, ?> converter);
+	protected abstract Type getKey(Converter<?, ?> converter);
 
 	public void add(Converter<?, ?> converter) {
-		put(getTypeOnBean(converter), converter);
+		put(getKey(converter), converter);
 	}
 
-	public void addConverterFactory(Provider<Type, Converter<?, ?>> converterFactory) {
-		factories.add(converterFactory);
+	/**
+	 * Sets dynamic provider of Converters. It will be used in addition to converters that are already
+	 * mapped with {@link #add(Converter)} method.
+	 *
+	 * @param converterFactory must be not null
+	 */
+	public void setConverterProvider(Provider<Type, Converter<?, ?>> converterFactory) {
+		factory = converterFactory;
 	}
 
 	@Override
@@ -48,12 +52,10 @@ public abstract class Converters implements Container<Type, Converter<?, ?>> {
 		if (converter != null) {
 			return converter;
 		}
-		for (Provider<Type, Converter<?, ?>> factory : factories) {
-            Converter<?, ?> factoryProvided = factory.get(type);
-            if (factoryProvided != null) {
-                return factoryProvided;
-            }
-        }
+		Converter<?, ?> dynamicallyProvided = factory.get(type);
+		if (dynamicallyProvided != null) {
+			return dynamicallyProvided;
+		}
 		return null;
 	}
 

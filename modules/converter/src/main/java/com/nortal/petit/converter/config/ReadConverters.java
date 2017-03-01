@@ -23,7 +23,7 @@ import com.nortal.petit.converter.Converter;
 public class ReadConverters extends Converters {
 
     @Override
-    protected Type getTypeOnBean(Converter<?, ?> converter) {
+    protected Type getKey(Converter<?, ?> converter) {
         return converter.getToType();
     }
 

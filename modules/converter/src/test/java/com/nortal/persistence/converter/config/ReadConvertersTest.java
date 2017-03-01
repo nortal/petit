@@ -64,9 +64,9 @@ public class ReadConvertersTest {
     }
 
     @Test
-    public void someConverterAddedViaFactory() {
+    public void someConverterResolvedWithProvider() {
         ConverterConfig.instance().getReadConverters().add(CustomPropertyTypeOne.createConverter());
-        ConverterConfig.instance().getReadConverters().addConverterFactory((type) -> {
+        ConverterConfig.instance().getReadConverters().setConverterProvider((type) -> {
             if (type.equals(CustomPropertyTypeTwo.class)) {
                 return CustomPropertyTypeTwo.createConverter();
             }
@@ -77,8 +77,8 @@ public class ReadConvertersTest {
     }
 
     @Test
-    public void allConvertersAddedViaFactory() {
-        ConverterConfig.instance().getReadConverters().addConverterFactory((type) -> {
+    public void allConvertersResolvedWithProvider() {
+        ConverterConfig.instance().getReadConverters().setConverterProvider((type) -> {
             if (type.equals(CustomPropertyTypeOne.class)) {
                 return CustomPropertyTypeOne.createConverter();
             }
@@ -127,7 +127,6 @@ public class ReadConvertersTest {
         }
     }
 
-    // TODO JV maybe there is place for this somewhere else?
     private BeanMapper<ConversionTestBean> createMapper() {
         BeanMapping<ConversionTestBean> mapping = BeanMappings.get(ConversionTestBean.class);
         return new BeanMapper<>(mapping, ConverterConfig.instance().getPropertyReader());
