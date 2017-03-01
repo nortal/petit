@@ -17,6 +17,7 @@ package com.nortal.persistence.converter.config.fixture.types;
 
 
 import com.nortal.petit.converter.BaseFromStringConverter;
+import com.nortal.petit.converter.BaseToStringConverter;
 import com.nortal.petit.converter.Converter;
 
 
@@ -24,7 +25,7 @@ public class CustomLongWrapperA {
 
     private Long val;
 
-    private CustomLongWrapperA(Long val) {
+    CustomLongWrapperA(Long val) {
         this.val = val;
     }
 
@@ -40,6 +41,16 @@ public class CustomLongWrapperA {
             }
         };
     }
+
+    public static Converter<CustomLongWrapperA, String> createConverterToString() {
+        return new BaseToStringConverter<CustomLongWrapperA>(CustomLongWrapperA.class) {
+            @Override
+            protected String convertNotNull(CustomLongWrapperA value) {
+                return value.getVal() == null ? null : value.getVal().toString();
+            }
+        };
+    }
+
 
 
 }

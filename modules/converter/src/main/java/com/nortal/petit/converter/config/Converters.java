@@ -61,7 +61,7 @@ public abstract class Converters implements Container<Type, Converter<?, ?>> {
 
 	@Override
 	public void put(Type type, Converter<?, ?> converter) {
-		staticProvider.put(converter.getToType(), converter);
+		staticProvider.put(type, converter);
 	}
 
 	@Override

@@ -42,5 +42,15 @@ public class CustomLongWrapperB {
         };
     }
 
+    public static Converter<CustomLongWrapperB, CustomLongWrapperA> createConverterToWrapperA() {
+        return new BaseConverter<CustomLongWrapperB, CustomLongWrapperA>
+                (CustomLongWrapperB.class, CustomLongWrapperA.class) {
+            @Override
+            public CustomLongWrapperA convert(CustomLongWrapperB value) {
+                return new CustomLongWrapperA(value.getVal());
+            }
+        };
+    }
+
 
 }
