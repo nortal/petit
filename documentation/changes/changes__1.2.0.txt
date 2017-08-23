@@ -1,0 +1,4 @@
+Changes between versions 1.1.1 - 1.2.0
+
+* Dropped support for Java 7
+* Removed Guava dependency in favor of Java 8 streams
