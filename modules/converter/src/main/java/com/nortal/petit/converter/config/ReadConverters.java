@@ -31,7 +31,7 @@ public class ReadConverters extends Converters {
     @Override
     public Converter<?, ?> get(Type to) {
         Converter<?, ?> converter = super.get(to);
-        if (converter != null) {
+        if (converter != null && !to.equals(converter.getFromType())) {
             Converter<?, ?> converter2 = get(converter.getFromType());
             if (converter2 != null) {
                 return new CompositeConverter(converter2, converter);
